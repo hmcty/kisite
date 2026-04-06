@@ -1,0 +1,49 @@
+{
+  "name": "kishare",
+  "version": "1.1.1",
+  "type": "module",
+  "description": "CLI tool for generating static KiCad project viewer sites",
+  "license": "GPL-3.0-only",
+  "bin": {
+    "kishare": "bin/kishare.js"
+  },
+  "keywords": [
+    "kicad",
+    "kicanvas",
+    "pcb",
+    "vite"
+  ],
+  "files": [
+    "bin/",
+    "src/",
+    "lib/",
+    "index.html",
+    "tsconfig.json"
+  ],
+  "scripts": {
+    "build-kicanvas": "cd ./vendor/kicanvas && npm install && npm run build",
+    "copy-kicanvas": "mkdir -p lib && cp ./vendor/kicanvas/build/kicanvas.js lib/",
+    "prepare": "npm run build-kicanvas && npm run copy-kicanvas",
+    "test": "vitest run"
+  },
+  "devDependencies": {
+    "@types/archiver": "^7.0.0",
+    "@types/dompurify": "^3.0.5",
+    "@types/marked": "^5.0.2",
+    "@types/node": "^20.12.7",
+    "typescript": "^5.4.5",
+    "vitest": "^3.1.1"
+  },
+  "dependencies": {
+    "archiver": "^7.0.1",
+    "dompurify": "^3.3.3",
+    "marked": "^17.0.6",
+    "marked-base-url": "^1.1.8",
+    "tsx": "^4.7.2",
+    "vite": "^5.2.8"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hmcty/kishare.git"
+  }
+}

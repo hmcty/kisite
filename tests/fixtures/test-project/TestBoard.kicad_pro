@@ -1,0 +1,14 @@
+{
+  "board": {
+    "design_settings": {
+      "defaults": {}
+    }
+  },
+  "meta": {
+    "filename": "TestBoard.kicad_pro",
+    "version": 1
+  },
+  "sheets": [
+    ["00000000-0000-0000-0000-000000000001", "Root"]
+  ]
+}

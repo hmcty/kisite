@@ -1,0 +1,6 @@
+[submodule "demo/projects/echo-debug-gen3"]
+	path = demo/projects/echo-debug-gen3
+	url = https://gitlab.com/phodina/echo-debug-gen3.git
+[submodule "vendor/kicanvas"]
+	path = vendor/kicanvas
+	url = https://github.com/hmcty/kicanvas.git
