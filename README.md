@@ -5,14 +5,14 @@ A lightweight tool to view and share your KiCad projects online.
 Built on [KiCanvas](https://kicanvas.org/), KiShare scans for KiCad project
 files and generates a static site.
 
-See the demo site [here](https://hmcty.github.io/kishare/).
+See the demo [here](https://hmcty.github.io/kishare/).
 
 ## Features
 
 - Out-of-the-box support for hosting on GitHub Pages
-- Can create and share location markers, e.g. to reference in GitHub issues / PR reviews
-- Generates links for easy download of project-specific ZIP archives
-- Provides basic support for inline documentation
+- Location markers for reference in GitHub issues / PR reviews
+- Download links for each project ZIP
+- Basic support for inline documentation
 
 ## Usage
 
@@ -46,11 +46,13 @@ on:
     branches: [main]
   workflow_dispatch:
 
+# Sets permissions for GitHub Pages deployment
 permissions:
   contents: read
   pages: write
   id-token: write
 
+# Allow only one concurrent deployment
 concurrency:
   group: "pages"
   cancel-in-progress: false
@@ -60,12 +62,17 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           submodules: recursive
 
-      - name: Build KiShare
-        uses: hmcty/kishare@main
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+
+      - run: npm install kishare@1.1.0
+      - run: npm exec kishare build
 
       - name: Setup Pages
         uses: actions/configure-pages@v4
@@ -89,3 +96,22 @@ jobs:
 
 See the [demo workflow](./.github/workflows/deploy.yml) for a complete example.
 
+#### Manual Build
+
+Install the KiShare CLI:
+
+```bash
+npm install -g kishare
+```
+
+Build site:
+
+```bash
+npm exec kishare build
+```
+
+Alternatively, run the development server:
+
+```bash
+npm exec kishare dev
+```
