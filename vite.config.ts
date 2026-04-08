@@ -5,9 +5,9 @@ import { fileURLToPath } from 'url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-// When used via CLI, KISHARE_PROJECT_ROOT points to user's project
+// When used via CLI, KISITE_PROJECT_ROOT points to user's project
 // Build output goes to user's project/dist by default
-const projectRoot = process.env.KISHARE_PROJECT_ROOT || __dirname;
+const projectRoot = process.env.KISITE_PROJECT_ROOT || __dirname;
 const defaultOutDir = path.join(projectRoot, 'dist');
 
 export default defineConfig({

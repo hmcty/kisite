@@ -13,8 +13,8 @@ describe('Indexer', () => {
 
   beforeAll(() => {
     // Set up environment for indexer
-    process.env.KISHARE_ROOT = kisiteRoot;
-    process.env.KISHARE_PROJECT_ROOT = fixturesDir;
+    process.env.KISITE_ROOT = kisiteRoot;
+    process.env.KISITE_PROJECT_ROOT = fixturesDir;
     process.chdir(fixturesDir);
   });
 

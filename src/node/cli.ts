@@ -9,7 +9,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // Resolve the kisite package root (two levels up from src/node/)
-const KISHARE_ROOT = path.resolve(__dirname, '../..');
+const KISITE_ROOT = path.resolve(__dirname, '../..');
 
 function printUsage() {
   console.log(`
@@ -43,27 +43,27 @@ function createWorkDir(): string {
 function setupWorkDir(workDir: string): void {
   // Copy index.html
   fs.copyFileSync(
-    path.join(KISHARE_ROOT, 'index.html'),
+    path.join(KISITE_ROOT, 'index.html'),
     path.join(workDir, 'index.html')
   );
 
   // Copy src directory for Vite to compile
   fs.cpSync(
-    path.join(KISHARE_ROOT, 'src'),
+    path.join(KISITE_ROOT, 'src'),
     path.join(workDir, 'src'),
     { recursive: true }
   );
 
   // Copy tsconfig.json for TypeScript
-  if (fs.existsSync(path.join(KISHARE_ROOT, 'tsconfig.json'))) {
+  if (fs.existsSync(path.join(KISITE_ROOT, 'tsconfig.json'))) {
     fs.copyFileSync(
-      path.join(KISHARE_ROOT, 'tsconfig.json'),
+      path.join(KISITE_ROOT, 'tsconfig.json'),
       path.join(workDir, 'tsconfig.json')
     );
   }
 
   // Symlink node_modules so Vite can resolve dependencies
-  const nodeModulesSource = path.join(KISHARE_ROOT, 'node_modules');
+  const nodeModulesSource = path.join(KISITE_ROOT, 'node_modules');
   const nodeModulesDest = path.join(workDir, 'node_modules');
   if (fs.existsSync(nodeModulesSource)) {
     fs.symlinkSync(nodeModulesSource, nodeModulesDest, 'dir');
@@ -74,8 +74,8 @@ function setupWorkDir(workDir: string): void {
 
   // Copy KiCanvas - check lib/ first (npm package), then vendor/ (local dev)
   const kicanvasLocations = [
-    path.join(KISHARE_ROOT, 'lib/kicanvas.js'),
-    path.join(KISHARE_ROOT, 'vendor/kicanvas/build/kicanvas.js'),
+    path.join(KISITE_ROOT, 'lib/kicanvas.js'),
+    path.join(KISITE_ROOT, 'vendor/kicanvas/build/kicanvas.js'),
   ];
   const kicanvasDest = path.join(workDir, 'public/kicanvas/kicanvas.js');
   fs.mkdirSync(path.dirname(kicanvasDest), { recursive: true });
@@ -150,7 +150,7 @@ function createViteConfig(workDir: string, outDir?: string): InlineConfig {
     },
     server: {
       port: 5173,
-      open: !process.env.KISHARE_NO_OPEN,
+      open: !process.env.KISITE_NO_OPEN,
     },
     plugins: [createKiCadPlugin(publicDir)],
     // Suppress config file loading
@@ -162,33 +162,33 @@ async function runIndexer(workDir: string) {
   console.log('Indexing projects...');
 
   // Set OUTPUT_DIR to workDir's public directory
-  const originalOutputDir = process.env.KISHARE_OUTPUT_DIR;
-  process.env.KISHARE_OUTPUT_DIR = path.join(workDir, 'public');
+  const originalOutputDir = process.env.KISITE_OUTPUT_DIR;
+  process.env.KISITE_OUTPUT_DIR = path.join(workDir, 'public');
 
   const { indexProjects } = await import('../indexer/scan-projects.js');
   await indexProjects();
 
   // Restore
   if (originalOutputDir) {
-    process.env.KISHARE_OUTPUT_DIR = originalOutputDir;
+    process.env.KISITE_OUTPUT_DIR = originalOutputDir;
   } else {
-    delete process.env.KISHARE_OUTPUT_DIR;
+    delete process.env.KISITE_OUTPUT_DIR;
   }
 }
 
 async function copyProjectFiles(workDir: string) {
   console.log('Copying project files...');
 
-  const originalOutputDir = process.env.KISHARE_OUTPUT_DIR;
-  process.env.KISHARE_OUTPUT_DIR = path.join(workDir, 'public');
+  const originalOutputDir = process.env.KISITE_OUTPUT_DIR;
+  process.env.KISITE_OUTPUT_DIR = path.join(workDir, 'public');
 
   const { copyPublicFiles } = await import('../indexer/copy-public-files.js');
   await copyPublicFiles();
 
   if (originalOutputDir) {
-    process.env.KISHARE_OUTPUT_DIR = originalOutputDir;
+    process.env.KISITE_OUTPUT_DIR = originalOutputDir;
   } else {
-    delete process.env.KISHARE_OUTPUT_DIR;
+    delete process.env.KISITE_OUTPUT_DIR;
   }
 }
 
@@ -256,12 +256,12 @@ async function main() {
   }
 
   // Set environment variables for the indexer
-  process.env.KISHARE_ROOT = KISHARE_ROOT;
-  process.env.KISHARE_PROJECT_ROOT = process.cwd();
+  process.env.KISITE_ROOT = KISITE_ROOT;
+  process.env.KISITE_PROJECT_ROOT = process.cwd();
 
   console.log(`KiSite CLI`);
   console.log(`  Project: ${process.cwd()}`);
-  console.log(`  Package: ${KISHARE_ROOT}`);
+  console.log(`  Package: ${KISITE_ROOT}`);
   console.log();
 
   try {

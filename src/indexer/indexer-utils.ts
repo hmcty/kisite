@@ -11,12 +11,12 @@ import type { WorkspaceConfig } from '../lib/project-index.js';
 // Module-level variables set at runtime
 let ROOT_DIR: string;
 let OUTPUT_DIR: string;
-let KISHARE_ROOT: string;
+let KISITE_ROOT: string;
 
 // Get kisite installation root from environment variable or resolve from this file's location
 function getKishareRoot(): string {
-  if (process.env.KISHARE_ROOT) {
-    return path.resolve(process.env.KISHARE_ROOT);
+  if (process.env.KISITE_ROOT) {
+    return path.resolve(process.env.KISITE_ROOT);
   }
   // Fallback: resolve from this file's location (two levels up from src/indexer/)
   const __filename = fileURLToPath(import.meta.url);
@@ -25,8 +25,8 @@ function getKishareRoot(): string {
 
 // Get user's project root (where kisite-config.json and KiCad files live)
 function getProjectRoot(): string {
-  // KISHARE_PROJECT_ROOT is set by CLI, otherwise use cwd
-  return process.env.KISHARE_PROJECT_ROOT || process.cwd();
+  // KISITE_PROJECT_ROOT is set by CLI, otherwise use cwd
+  return process.env.KISITE_PROJECT_ROOT || process.cwd();
 }
 
 // Check if one path is a parent of another
@@ -48,17 +48,17 @@ export function loadConfig(): WorkspaceConfig {
 
 // Initialize paths
 // ROOT_DIR = user's project (where KiCad files live)
-// KISHARE_ROOT = kisite package installation
-// OUTPUT_DIR = output directory for generated files (can be overridden via KISHARE_OUTPUT_DIR)
+// KISITE_ROOT = kisite package installation
+// OUTPUT_DIR = output directory for generated files (can be overridden via KISITE_OUTPUT_DIR)
 export function initializePaths() {
   ROOT_DIR = getProjectRoot();
-  KISHARE_ROOT = getKishareRoot();
+  KISITE_ROOT = getKishareRoot();
   // Allow OUTPUT_DIR to be overridden via environment variable (used by CLI with temp directories)
-  OUTPUT_DIR = process.env.KISHARE_OUTPUT_DIR || path.join(KISHARE_ROOT, 'public');
+  OUTPUT_DIR = process.env.KISITE_OUTPUT_DIR || path.join(KISITE_ROOT, 'public');
 
   console.log(`Config file: ${path.join(ROOT_DIR, 'kisite-config.json')}`);
   console.log(`Root directory (project files): ${ROOT_DIR}`);
-  console.log(`KiSite root: ${KISHARE_ROOT}`);
+  console.log(`KiSite root: ${KISITE_ROOT}`);
   console.log(`Output directory: ${OUTPUT_DIR}`);
 }
 
@@ -84,10 +84,10 @@ export function getOutputDir(): string {
 }
 
 export function getKishareRootDir(): string {
-  if (!KISHARE_ROOT) {
+  if (!KISITE_ROOT) {
     throw new Error('Paths not initialized. Call initializePaths() first.');
   }
-  return KISHARE_ROOT;
+  return KISITE_ROOT;
 }
 
 // Find the git repository root directory

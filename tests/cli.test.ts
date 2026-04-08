@@ -14,7 +14,7 @@ function runCli(args: string[], cwd: string = fixturesDir): Promise<{ stdout: st
   return new Promise((resolve) => {
     const child = spawn('node', [cliBin, ...args], {
       cwd,
-      env: { ...process.env, KISHARE_NO_OPEN: '1' },
+      env: { ...process.env, KISITE_NO_OPEN: '1' },
     });
 
     let stdout = '';
@@ -200,7 +200,7 @@ describe('CLI', () => {
     it('should start dev server and respond', async () => {
       const child = spawn('node', [cliBin, 'dev'], {
         cwd: fixturesDir,
-        env: { ...process.env, KISHARE_NO_OPEN: '1' },
+        env: { ...process.env, KISITE_NO_OPEN: '1' },
       });
 
       let output = '';
