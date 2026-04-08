@@ -80,53 +80,7 @@ export class ProjectList extends HTMLElement {
     // Render based on view mode
     if (this.viewMode === "detail" && this.selectedProjectId) {
       this.renderDetailView();
-    } else {
-      this.renderListView();
     }
-  }
-
-  /**
-   * Render the project list view
-   */
-  private renderListView() {
-    // Group projects by base name
-    const grouped = this.groupProjects();
-
-    let html = '<ul class="project-list">';
-
-    for (const [groupName, groupProjects] of grouped) {
-      if (groupProjects.length === 1) {
-        // Single project, no grouping
-        const project = groupProjects[0];
-        html += this.renderProjectItem(project);
-      } else {
-        // Multiple projects, show as group
-        html += `
-          <li class="project-group">
-            <div class="group-name">${groupName}</div>
-            <ul class="group-projects">
-              ${groupProjects.map((p) => this.renderProjectItem(p)).join("")}
-            </ul>
-          </li>
-        `;
-      }
-    }
-
-    html += "</ul>";
-    this.innerHTML = DOMPurify.sanitize(html);
-
-    // Add click event listeners
-    this.querySelectorAll(".project-item").forEach((item) => {
-      item.addEventListener("click", (e) => {
-        // Don't navigate if clicking the download button
-        if ((e.target as HTMLElement).closest(".download-btn")) return;
-
-        const projectId = item.getAttribute("data-project-id");
-        if (projectId) {
-          this.handleProjectClick(projectId);
-        }
-      });
-    });
   }
 
   /**
@@ -135,7 +89,6 @@ export class ProjectList extends HTMLElement {
   private renderDetailView() {
     const project = this.projects.find((p) => p.id === this.selectedProjectId);
     if (!project) {
-      this.renderListView();
       return;
     }
 
@@ -325,37 +278,6 @@ export class ProjectList extends HTMLElement {
         </div>
       </li>
     `;
-  }
-
-  /**
-   * Group projects by base name
-   */
-  private groupProjects(): Map<string, ProjectMetadata[]> {
-    const grouped = new Map<string, ProjectMetadata[]>();
-
-    for (const project of this.projects) {
-      // Extract base name (e.g., "deloop" from "deloop_mk0" or "deloop_mk1")
-      const baseName = this.extractBaseName(project.id);
-
-      if (!grouped.has(baseName)) {
-        grouped.set(baseName, []);
-      }
-      grouped.get(baseName)!.push(project);
-    }
-
-    return grouped;
-  }
-
-  /**
-   * Extract base name from project ID
-   */
-  private extractBaseName(projectId: string): string {
-    // Try to find common prefixes like "deloop", "pedal", etc.
-    const match = projectId.match(/^([a-z]+)_/);
-    if (match) {
-      return match[1];
-    }
-    return projectId;
   }
 }
 

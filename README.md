@@ -118,11 +118,12 @@ npm exec kisite dev
 
 ## Future Work
 
-- Out-of-the-box support for GitLab and other static hosting platforms
+- GitLab hosting
 - Improved inline documentation (e.g. per sheet, component links, etc.)
 - KiCad plugin for viewing PR comments and markers locally
 - Support for custom themes and site customization
 - Improved workspace layout
+- 3D renderings
 
 ## Alternatives
 

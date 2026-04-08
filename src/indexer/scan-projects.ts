@@ -51,9 +51,10 @@ function getGitInfo(): GitInfo {
     }
   };
 
-  // Get commit hash
+  // Get commit hash and date
   const commitHash = exec("git rev-parse HEAD");
   const commitHashShort = exec("git rev-parse --short HEAD");
+  const commitDate = exec("git log -1 --format=%cI HEAD"); // ISO 8601 format
 
   // Get remote URL and parse it
   const remoteUrl = exec("git remote get-url origin");
@@ -79,6 +80,7 @@ function getGitInfo(): GitInfo {
     commitHash,
     commitHashShort,
     commitUrl,
+    commitDate: commitDate || undefined,
   };
 }
 

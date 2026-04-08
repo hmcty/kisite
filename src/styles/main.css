@@ -639,9 +639,11 @@ project-gallery {
 
 .gallery-header {
   display: flex;
-  align-items: baseline;
+  flex-direction: column;
   gap: 12px;
-  margin-bottom: 24px;
+  margin-bottom: 28px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--border-color);
 }
 
 .gallery-title-row {
@@ -651,7 +653,7 @@ project-gallery {
 }
 
 .gallery-header h2 {
-  font-size: 24px;
+  font-size: 28px;
   font-weight: 600;
   color: var(--fg-primary);
   margin: 0;
@@ -665,8 +667,8 @@ project-gallery {
   transition: color 0.15s;
   text-decoration: none;
   flex-shrink: 0;
-  width: 24px;
-  height: 24px;
+  width: 28px;
+  height: 28px;
 }
 
 .gallery-github-link:hover {
@@ -678,8 +680,73 @@ project-gallery {
   flex-shrink: 0;
 }
 
-.gallery-count {
+.gallery-top-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.gallery-clone-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.gallery-clone-url {
+  font-family: var(--font-mono, monospace);
+  font-size: 13px;
+  color: var(--fg-secondary);
+  background-color: var(--bg-tertiary, #2d2d2d);
+  padding: 6px 12px;
+  border-radius: 4px;
+  border: 1px solid var(--border-color);
+}
+
+.gallery-copy-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  background-color: var(--bg-secondary);
+  color: var(--fg-secondary);
+  cursor: pointer;
+  transition:
+    color 0.15s,
+    border-color 0.15s;
+}
+
+.gallery-copy-btn:hover {
+  color: var(--accent-color);
+  border-color: var(--accent-color);
+}
+
+.gallery-copy-btn.copied {
+  color: #4ec9b0;
+  border-color: #4ec9b0;
+}
+
+.gallery-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
   font-size: 14px;
+  color: var(--fg-secondary);
+}
+
+.gallery-meta .separator {
+  color: var(--fg-tertiary, #666);
+}
+
+.gallery-count {
+  color: var(--fg-secondary);
+}
+
+.gallery-updated {
   color: var(--fg-secondary);
 }
 

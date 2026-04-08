@@ -5,7 +5,12 @@
 import DOMPurify from "dompurify";
 import type { ProjectMetadata, GitInfo } from "../lib/project-index.js";
 import { router } from "../lib/router.js";
-import { githubIcon, isSafeUrl } from "../lib/html-utils.js";
+import {
+  githubIcon,
+  isSafeUrl,
+  copyIcon,
+  checkIcon,
+} from "../lib/html-utils.js";
 
 export class ProjectGallery extends HTMLElement {
   private projects: ProjectMetadata[] = [];
@@ -47,6 +52,42 @@ export class ProjectGallery extends HTMLElement {
   }
 
   /**
+   * Format an ISO date string to a human-readable format
+   */
+  private formatDate(isoDate: string): string {
+    const date = new Date(isoDate);
+    return date.toLocaleDateString(undefined, {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    });
+  }
+
+  /**
+   * Copy text to clipboard and show feedback
+   */
+  private async copyToClipboard(text: string, button: HTMLElement) {
+    try {
+      await navigator.clipboard.writeText(text);
+      const originalHtml = button.innerHTML;
+      button.innerHTML = checkIcon(14);
+      button.classList.add("copied");
+      setTimeout(() => {
+        button.innerHTML = originalHtml;
+        button.classList.remove("copied");
+      }, 2000);
+    } catch {
+      // Fallback for older browsers
+      const textarea = document.createElement("textarea");
+      textarea.value = text;
+      document.body.appendChild(textarea);
+      textarea.select();
+      document.execCommand("copy");
+      document.body.removeChild(textarea);
+    }
+  }
+
+  /**
    * Render the gallery
    */
   private render() {
@@ -69,19 +110,46 @@ export class ProjectGallery extends HTMLElement {
     if (this.gitInfo?.repoUrl && isSafeUrl(this.gitInfo.repoUrl)) {
       githubLink = `
         <a href="${this.gitInfo.repoUrl}" target="_blank" rel="noopener" class="gallery-github-link" title="View on GitHub">
-          ${githubIcon(20)}
+          ${githubIcon(24)}
         </a>
       `;
+    }
+
+    // Build clone URL row if available
+    let cloneUrlRow = "";
+    if (this.gitInfo?.repoUrl && isSafeUrl(this.gitInfo.repoUrl)) {
+      const cloneUrl = `${this.gitInfo.repoUrl}.git`;
+      cloneUrlRow = `
+        <div class="gallery-clone-row">
+          <code class="gallery-clone-url">git clone ${cloneUrl}</code>
+          <button class="gallery-copy-btn" data-copy="${cloneUrl}" title="Copy clone URL">
+            ${copyIcon(14)}
+          </button>
+        </div>
+      `;
+    }
+
+    // Build last updated row if available
+    let lastUpdatedRow = "";
+    if (this.gitInfo?.commitDate) {
+      const formattedDate = this.formatDate(this.gitInfo.commitDate);
+      lastUpdatedRow = `<span class="separator">•</span><span class="gallery-updated">Last Updated: ${formattedDate}</span>`;
     }
 
     const html = `
       <div class="gallery">
         <div class="gallery-header">
-          <div class="gallery-title-row">
-            <h2>${DOMPurify.sanitize(this.title)}</h2>
-            ${githubLink}
+          <div class="gallery-top-row">
+            <div class="gallery-title-row">
+              <h2>${DOMPurify.sanitize(this.title)}</h2>
+              ${githubLink}
+            </div>
+            ${cloneUrlRow}
           </div>
-          <span class="gallery-count">${this.projects.length} project${this.projects.length !== 1 ? "s" : ""}</span>
+          <div class="gallery-meta">
+            <span class="gallery-count">${this.projects.length} project${this.projects.length !== 1 ? "s" : ""}</span>
+            ${lastUpdatedRow}
+          </div>
         </div>
         <div class="gallery-grid">
           ${this.projects.map((project) => this.renderProjectCard(project)).join("")}
@@ -134,6 +202,17 @@ export class ProjectGallery extends HTMLElement {
         }
       });
     });
+
+    // Add copy button event listener
+    const copyBtn = this.querySelector(".gallery-copy-btn") as HTMLElement;
+    if (copyBtn) {
+      const copyUrl = copyBtn.getAttribute("data-copy");
+      if (copyUrl) {
+        copyBtn.addEventListener("click", () => {
+          this.copyToClipboard(copyUrl, copyBtn);
+        });
+      }
+    }
   }
 
   /**

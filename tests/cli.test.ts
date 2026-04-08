@@ -192,7 +192,7 @@ describe("CLI", () => {
       const htmlPath = path.join(buildOutputDir, "index.html");
       const html = fs.readFileSync(htmlPath, "utf-8");
 
-      expect(html).toContain("<!DOCTYPE html>");
+      expect(html.toLowerCase()).toContain("<!doctype html>");
       expect(html).toContain("<workspace-app>");
       expect(html).toMatch(/<script[^>]+src="[^"]*assets[^"]*\.js"/);
       expect(html).toMatch(/<link[^>]+href="[^"]*assets[^"]*\.css"/);

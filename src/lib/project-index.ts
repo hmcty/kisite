@@ -13,6 +13,7 @@ export interface GitInfo {
   commitHash: string; // e.g., "abc1234"
   commitHashShort: string; // e.g., "abc1234" (7 chars)
   commitUrl?: string; // e.g., "https://github.com/user/repo/commit/abc1234"
+  commitDate?: string; // ISO 8601 date of last commit
 }
 
 export interface ProjectIndex {
