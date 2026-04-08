@@ -2,17 +2,17 @@
  * Project list component - displays navigation sidebar
  */
 
-import { Marked } from 'marked';
-import { baseUrl } from 'marked-base-url';
-import DOMPurify from 'dompurify';
-import type { ProjectMetadata, GitInfo } from '../lib/project-index.js';
-import { router } from '../lib/router.js';
-import { isSafeUrl, githubIcon } from '../lib/html-utils.js';
+import { Marked } from "marked";
+import { baseUrl } from "marked-base-url";
+import DOMPurify from "dompurify";
+import type { ProjectMetadata, GitInfo } from "../lib/project-index.js";
+import { router } from "../lib/router.js";
+import { isSafeUrl, githubIcon } from "../lib/html-utils.js";
 
 export class ProjectList extends HTMLElement {
   private projects: ProjectMetadata[] = [];
   private selectedProjectId: string | null = null;
-  private viewMode: 'list' | 'detail' = 'list';
+  private viewMode: "list" | "detail" = "list";
   private gitInfo: GitInfo | null = null;
 
   constructor() {
@@ -44,7 +44,7 @@ export class ProjectList extends HTMLElement {
   setSelectedProject(projectId: string | null) {
     this.selectedProjectId = projectId;
     // Switch to detail view when a project is selected
-    this.viewMode = projectId ? 'detail' : 'list';
+    this.viewMode = projectId ? "detail" : "list";
     this.render();
   }
 
@@ -52,16 +52,16 @@ export class ProjectList extends HTMLElement {
    * Return to project list view
    */
   private showProjectList() {
-    this.viewMode = 'list';
+    this.viewMode = "list";
     this.selectedProjectId = null;
-    router.navigate('/');
+    router.navigate("/");
   }
 
   /**
    * Handle project click
    */
   private handleProjectClick(projectId: string) {
-    router.navigate('/project', projectId);
+    router.navigate("/project", projectId);
   }
 
   /**
@@ -78,7 +78,7 @@ export class ProjectList extends HTMLElement {
     }
 
     // Render based on view mode
-    if (this.viewMode === 'detail' && this.selectedProjectId) {
+    if (this.viewMode === "detail" && this.selectedProjectId) {
       this.renderDetailView();
     } else {
       this.renderListView();
@@ -105,23 +105,23 @@ export class ProjectList extends HTMLElement {
           <li class="project-group">
             <div class="group-name">${groupName}</div>
             <ul class="group-projects">
-              ${groupProjects.map(p => this.renderProjectItem(p)).join('')}
+              ${groupProjects.map((p) => this.renderProjectItem(p)).join("")}
             </ul>
           </li>
         `;
       }
     }
 
-    html += '</ul>';
+    html += "</ul>";
     this.innerHTML = DOMPurify.sanitize(html);
 
     // Add click event listeners
-    this.querySelectorAll('.project-item').forEach(item => {
-      item.addEventListener('click', (e) => {
+    this.querySelectorAll(".project-item").forEach((item) => {
+      item.addEventListener("click", (e) => {
         // Don't navigate if clicking the download button
-        if ((e.target as HTMLElement).closest('.download-btn')) return;
+        if ((e.target as HTMLElement).closest(".download-btn")) return;
 
-        const projectId = item.getAttribute('data-project-id');
+        const projectId = item.getAttribute("data-project-id");
         if (projectId) {
           this.handleProjectClick(projectId);
         }
@@ -133,7 +133,7 @@ export class ProjectList extends HTMLElement {
    * Render the project detail view
    */
   private renderDetailView() {
-    const project = this.projects.find(p => p.id === this.selectedProjectId);
+    const project = this.projects.find((p) => p.id === this.selectedProjectId);
     if (!project) {
       this.renderListView();
       return;
@@ -141,9 +141,13 @@ export class ProjectList extends HTMLElement {
 
     // Format dates
     const formatDate = (isoDate?: string) => {
-      if (!isoDate) return 'Unknown';
+      if (!isoDate) return "Unknown";
       const date = new Date(isoDate);
-      return date.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+      return date.toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+      });
     };
 
     const badges = [];
@@ -154,13 +158,15 @@ export class ProjectList extends HTMLElement {
       badges.push(`<span class="badge badge-pcb">PCB</span>`);
     }
 
-    const downloadBtn = project.zip ? `
+    const downloadBtn = project.zip
+      ? `
       <a href="${project.zip}" download class="download-btn" title="Download project">
         <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
           <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
         </svg>
       </a>
-    ` : '';
+    `
+      : "";
 
     const html = `
       <div class="project-detail">
@@ -174,7 +180,7 @@ export class ProjectList extends HTMLElement {
         <div class="project-item selected">
           <div class="project-name">${project.name}</div>
           <div class="project-actions">
-            <div class="project-badges">${badges.join(' ')}</div>
+            <div class="project-badges">${badges.join(" ")}</div>
             ${downloadBtn}
           </div>
         </div>
@@ -190,13 +196,17 @@ export class ProjectList extends HTMLElement {
           </div>
         </div>
 
-        ${project.readme ? (() => {
-          const readmeUrl = this.getProjectUrl(project);
-          return `
+        ${
+          project.readme
+            ? (() => {
+                const readmeUrl = this.getProjectUrl(project);
+                return `
           <div class="detail-section">
             <div class="detail-section-header">
               <h3>Documentation</h3>
-              ${readmeUrl ? `
+              ${
+                readmeUrl
+                  ? `
                 <a href="${readmeUrl}"
                    target="_blank"
                    rel="noopener"
@@ -204,20 +214,24 @@ export class ProjectList extends HTMLElement {
                    title="View on GitHub/GitLab">
                   ${githubIcon(14)}
                 </a>
-              ` : ''}
+              `
+                  : ""
+              }
             </div>
             <div class="detail-readme">${this.renderMarkdown(project.readme, project.path)}</div>
           </div>
         `;
-        })() : ''}
+              })()
+            : ""
+        }
       </div>
     `;
     this.innerHTML = DOMPurify.sanitize(html);
 
     // Add back button listener
-    const backButton = this.querySelector('.back-button');
+    const backButton = this.querySelector(".back-button");
     if (backButton) {
-      backButton.addEventListener('click', () => {
+      backButton.addEventListener("click", () => {
         this.showProjectList();
       });
     }
@@ -233,7 +247,7 @@ export class ProjectList extends HTMLElement {
     }
 
     if (!isSafeUrl(git.repoUrl)) {
-      console.warn('Invalid URL protocol in git.repoUrl:', git.repoUrl);
+      console.warn("Invalid URL protocol in git.repoUrl:", git.repoUrl);
       return null;
     }
 
@@ -243,7 +257,7 @@ export class ProjectList extends HTMLElement {
   }
 
   /**
-   * Render markdown content (used for live doc display) 
+   * Render markdown content (used for live doc display)
    */
   private renderMarkdown(markdown: string, projectPath: string): string {
     // Create new instance to avoid global scope issues on project change
@@ -252,8 +266,27 @@ export class ProjectList extends HTMLElement {
     const html = marked.parse(markdown) as string;
 
     return DOMPurify.sanitize(html, {
-      ALLOWED_TAGS: ['h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p', 'br', 'strong', 'em', 'code', 'pre', 'a', 'img', 'ul', 'ol', 'li', 'blockquote'],
-      ALLOWED_ATTR: ['href', 'src', 'alt', 'title', 'target', 'rel'],
+      ALLOWED_TAGS: [
+        "h1",
+        "h2",
+        "h3",
+        "h4",
+        "h5",
+        "h6",
+        "p",
+        "br",
+        "strong",
+        "em",
+        "code",
+        "pre",
+        "a",
+        "img",
+        "ul",
+        "ol",
+        "li",
+        "blockquote",
+      ],
+      ALLOWED_ATTR: ["href", "src", "alt", "title", "target", "rel"],
       ALLOW_DATA_ATTR: false,
     });
   }
@@ -263,7 +296,7 @@ export class ProjectList extends HTMLElement {
    */
   private renderProjectItem(project: ProjectMetadata): string {
     const isSelected = project.id === this.selectedProjectId;
-    const selectedClass = isSelected ? ' selected' : '';
+    const selectedClass = isSelected ? " selected" : "";
 
     const badges = [];
     if (project.schematics.length > 0) {
@@ -273,19 +306,21 @@ export class ProjectList extends HTMLElement {
       badges.push(`<span class="badge badge-pcb">PCB</span>`);
     }
 
-    const downloadBtn = project.zip ? `
+    const downloadBtn = project.zip
+      ? `
       <a href="${project.zip}" download class="download-btn" title="Download project">
         <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
           <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
         </svg>
       </a>
-    ` : '';
+    `
+      : "";
 
     return `
       <li class="project-item${selectedClass}" data-project-id="${project.id}">
         <div class="project-name">${project.name}</div>
         <div class="project-actions">
-          <div class="project-badges">${badges.join(' ')}</div>
+          <div class="project-badges">${badges.join(" ")}</div>
           ${downloadBtn}
         </div>
       </li>
@@ -325,4 +360,4 @@ export class ProjectList extends HTMLElement {
 }
 
 // Register custom element
-customElements.define('project-list', ProjectList);
+customElements.define("project-list", ProjectList);

@@ -1,0 +1,7 @@
+# Ignore artifacts:
+dist
+lib
+vendor
+node_modules
+public
+demo

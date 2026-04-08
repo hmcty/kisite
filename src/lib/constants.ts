@@ -13,7 +13,7 @@ export const SIDEBAR = {
   /** Default width in pixels */
   DEFAULT_WIDTH: 300,
   /** LocalStorage key for saved width */
-  STORAGE_KEY: 'sidebar-width',
+  STORAGE_KEY: "sidebar-width",
 } as const;
 
 /**
@@ -36,9 +36,9 @@ export const MARKER = {
   TEMP_DURATION: 3000,
   /** Marker visual properties */
   STYLE: {
-    color: 'rgba(255, 68, 68, 0.7)',
+    color: "rgba(255, 68, 68, 0.7)",
     radius: 1.5,
     strokeWidth: 0.3,
-    shape: 'arrow' as const,
+    shape: "arrow" as const,
   },
 } as const;

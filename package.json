@@ -25,6 +25,8 @@
     "build-kicanvas": "cd ./vendor/kicanvas && npm install && npm run build",
     "copy-kicanvas": "mkdir -p lib && cp ./vendor/kicanvas/build/kicanvas.js lib/",
     "prepublish": "npm run check-kicanvas && npm run build-kicanvas && npm run copy-kicanvas",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
     "test": "vitest run"
   },
   "devDependencies": {
@@ -32,6 +34,7 @@
     "@types/dompurify": "^3.0.5",
     "@types/marked": "^5.0.2",
     "@types/node": "^20.12.7",
+    "prettier": "3.8.1",
     "typescript": "^5.4.5",
     "vitest": "^3.1.1"
   },
@@ -41,7 +44,7 @@
     "marked": "^17.0.6",
     "marked-base-url": "^1.1.8",
     "tsx": "^4.7.2",
-    "vite": "^5.2.8"
+    "vite": "^8.0.7"
   },
   "repository": {
     "type": "git",

@@ -2,11 +2,11 @@
  * Viewer panel component - wraps KiCanvas embed element
  */
 
-import type { ProjectMetadata, GitInfo } from '../lib/project-index.js';
-import { router, type ViewPosition, type MarkerBounds } from '../lib/router.js';
-import { MARKER, TOAST } from '../lib/constants.js';
-import { githubIcon } from '../lib/html-utils.js';
-import { ProjectGallery } from './project-gallery.js';
+import type { ProjectMetadata, GitInfo } from "../lib/project-index.js";
+import { router, type ViewPosition, type MarkerBounds } from "../lib/router.js";
+import { MARKER, TOAST } from "../lib/constants.js";
+import { githubIcon } from "../lib/html-utils.js";
+import { ProjectGallery } from "./project-gallery.js";
 
 interface MousePosition {
   x: number;
@@ -19,14 +19,14 @@ export class ViewerPanel extends HTMLElement {
   private gitInfo: GitInfo | null = null;
   private markerId: number | null = null;
   private projects: ProjectMetadata[] = [];
-  private title: string = 'Projects';
+  private title: string = "Projects";
 
   constructor() {
     super();
   }
 
   connectedCallback() {
-    console.log('ViewerPanel connected to DOM');
+    console.log("ViewerPanel connected to DOM");
     this.render();
     this.setupEventListeners();
   }
@@ -51,20 +51,24 @@ export class ViewerPanel extends HTMLElement {
   /**
    * Load a project in the viewer
    */
-  loadProject(project: ProjectMetadata, position?: ViewPosition, marker?: import('../lib/router.js').MarkerBounds) {
+  loadProject(
+    project: ProjectMetadata,
+    position?: ViewPosition,
+    marker?: import("../lib/router.js").MarkerBounds,
+  ) {
     // Cleanup previous marker
     this.clearMarker();
 
     // Clear existing content
-    this.innerHTML = '';
+    this.innerHTML = "";
 
     // Create container for viewer and toolbar
-    const container = document.createElement('div');
-    container.className = 'viewer-container';
+    const container = document.createElement("div");
+    container.className = "viewer-container";
 
     // Create kicanvas-embed element
-    const embed = document.createElement('kicanvas-embed');
-    embed.setAttribute('controls', 'full');
+    const embed = document.createElement("kicanvas-embed");
+    embed.setAttribute("controls", "full");
 
     // Add project file as a source
     if (project.projectFile) {
@@ -96,9 +100,13 @@ export class ViewerPanel extends HTMLElement {
   /**
    * Setup event listeners
    */
-  private setupViewerEvents(embed: HTMLElement, position?: ViewPosition, marker?: import('../lib/router.js').MarkerBounds) {
+  private setupViewerEvents(
+    embed: HTMLElement,
+    position?: ViewPosition,
+    marker?: import("../lib/router.js").MarkerBounds,
+  ) {
     // Track mouse position
-    embed.addEventListener('kicanvas:mousemove', ((e: CustomEvent) => {
+    embed.addEventListener("kicanvas:mousemove", ((e: CustomEvent) => {
       this.mousePosition = {
         x: e.detail.x,
         y: e.detail.y,
@@ -107,56 +115,79 @@ export class ViewerPanel extends HTMLElement {
 
     // Pan to position after load
     if (position) {
-      embed.addEventListener('kicanvas:load', () => {
-        this.panToPosition(position, marker);
-      }, { once: true });
+      embed.addEventListener(
+        "kicanvas:load",
+        () => {
+          this.panToPosition(position, marker);
+        },
+        { once: true },
+      );
     }
   }
 
   /**
    * Pan viewer to a specific position and optionally show marker
    */
-  private panToPosition(position: ViewPosition, marker?: import('../lib/router.js').MarkerBounds) {
+  private panToPosition(
+    position: ViewPosition,
+    marker?: import("../lib/router.js").MarkerBounds,
+  ) {
     try {
       // Switch to the specified file if needed
-      if (position.file && position.file !== 'pcb') {
+      if (position.file && position.file !== "pcb") {
         // Schematic sheet - need to switch to it first
         const shadowRoot = this.currentEmbed?.shadowRoot;
         if (shadowRoot) {
-          const schematicApp = shadowRoot.querySelector('kc-schematic-app');
+          const schematicApp = shadowRoot.querySelector("kc-schematic-app");
           if (schematicApp && (schematicApp as any).project) {
             const project = (schematicApp as any).project;
-            console.log('Switching to sheet:', position.file, 'current:', project.active_page?.project_path);
+            console.log(
+              "Switching to sheet:",
+              position.file,
+              "current:",
+              project.active_page?.project_path,
+            );
 
             // Always set the active page to ensure we're on the right sheet
             project.set_active_page(position.file);
 
             // Wait for the sheet to load and viewer to be ready
-            setTimeout(() => this.doPanAndMarker(position, marker, 'schematic'), 300);
+            setTimeout(
+              () => this.doPanAndMarker(position, marker, "schematic"),
+              300,
+            );
             return;
           }
         }
       }
 
       // PCB or no file specified - use currently active viewer
-      this.doPanAndMarker(position, marker, position.file === 'pcb' ? 'pcb' : null);
+      this.doPanAndMarker(
+        position,
+        marker,
+        position.file === "pcb" ? "pcb" : null,
+      );
     } catch (e) {
-      console.warn('Failed to pan to position:', e);
+      console.warn("Failed to pan to position:", e);
     }
   }
 
   /**
    * Actually perform the pan and add marker
    */
-  private doPanAndMarker(position: ViewPosition, marker?: import('../lib/router.js').MarkerBounds, preferredType?: 'schematic' | 'pcb' | null) {
+  private doPanAndMarker(
+    position: ViewPosition,
+    marker?: import("../lib/router.js").MarkerBounds,
+    preferredType?: "schematic" | "pcb" | null,
+  ) {
     const viewer = this.getViewer(preferredType);
     if (!viewer) {
-      console.warn('No viewer found for type:', preferredType);
+      console.warn("No viewer found for type:", preferredType);
       return;
     }
 
     try {
-      console.log('Adding marker to viewer at', position.x, position.y);
+      console.log("Adding marker to viewer at", position.x, position.y);
       viewer.viewport.camera.center.set(position.x, position.y);
       viewer.viewport.camera.zoom = position.zoom;
       viewer.draw();
@@ -167,7 +198,7 @@ export class ViewerPanel extends HTMLElement {
         const centerX = marker.x + marker.width / 2;
         const centerY = marker.y + marker.height / 2;
 
-        console.log('Adding marker at center:', centerX, centerY);
+        console.log("Adding marker at center:", centerX, centerY);
         // Add arrow marker at center of bounding box
         this.markerId = viewer.addMarker(centerX, centerY, MARKER.STYLE);
       } else {
@@ -175,7 +206,7 @@ export class ViewerPanel extends HTMLElement {
         this.markerId = viewer.addMarker(position.x, position.y, MARKER.STYLE);
       }
     } catch (e) {
-      console.warn('Failed to do pan and marker:', e);
+      console.warn("Failed to do pan and marker:", e);
     }
   }
 
@@ -201,32 +232,32 @@ export class ViewerPanel extends HTMLElement {
 
     try {
       const visible = viewer.toggleMarkersVisible();
-      this.showToast(visible ? 'Markers shown' : 'Markers hidden');
+      this.showToast(visible ? "Markers shown" : "Markers hidden");
     } catch (e) {
-      console.warn('Failed to toggle markers:', e);
+      console.warn("Failed to toggle markers:", e);
     }
   }
 
   /**
    * Get the current viewer instance
    */
-  private getViewer(preferredType?: 'schematic' | 'pcb' | null): any {
+  private getViewer(preferredType?: "schematic" | "pcb" | null): any {
     if (!this.currentEmbed) return null;
 
     const shadowRoot = this.currentEmbed.shadowRoot;
     if (!shadowRoot) return null;
 
     // If a specific type is requested, return that viewer
-    if (preferredType === 'pcb') {
-      const boardApp = shadowRoot.querySelector('kc-board-app');
+    if (preferredType === "pcb") {
+      const boardApp = shadowRoot.querySelector("kc-board-app");
       if (boardApp && (boardApp as any).viewer) {
         return (boardApp as any).viewer;
       }
       return null;
     }
 
-    if (preferredType === 'schematic') {
-      const schematicApp = shadowRoot.querySelector('kc-schematic-app');
+    if (preferredType === "schematic") {
+      const schematicApp = shadowRoot.querySelector("kc-schematic-app");
       if (schematicApp && (schematicApp as any).viewer) {
         return (schematicApp as any).viewer;
       }
@@ -235,18 +266,18 @@ export class ViewerPanel extends HTMLElement {
 
     // No preference - check which is visible
     // Try board viewer first, then schematic
-    const boardApp = shadowRoot.querySelector('kc-board-app');
+    const boardApp = shadowRoot.querySelector("kc-board-app");
     if (boardApp) {
       const style = window.getComputedStyle(boardApp);
-      if (style.display !== 'none' && (boardApp as any).viewer) {
+      if (style.display !== "none" && (boardApp as any).viewer) {
         return (boardApp as any).viewer;
       }
     }
 
-    const schematicApp = shadowRoot.querySelector('kc-schematic-app');
+    const schematicApp = shadowRoot.querySelector("kc-schematic-app");
     if (schematicApp) {
       const style = window.getComputedStyle(schematicApp);
-      if (style.display !== 'none' && (schematicApp as any).viewer) {
+      if (style.display !== "none" && (schematicApp as any).viewer) {
         return (schematicApp as any).viewer;
       }
     }
@@ -264,21 +295,24 @@ export class ViewerPanel extends HTMLElement {
     if (!shadowRoot) return null;
 
     // Check if board app is visible and has a viewer
-    const boardApp = shadowRoot.querySelector('kc-board-app');
+    const boardApp = shadowRoot.querySelector("kc-board-app");
     if (boardApp) {
       const style = window.getComputedStyle(boardApp);
-      if (style.display !== 'none' && (boardApp as any).viewer) {
-        return 'pcb';
+      if (style.display !== "none" && (boardApp as any).viewer) {
+        return "pcb";
       }
     }
 
     // Check if schematic app is visible and has active page
-    const schematicApp = shadowRoot.querySelector('kc-schematic-app');
+    const schematicApp = shadowRoot.querySelector("kc-schematic-app");
     if (schematicApp) {
       const style = window.getComputedStyle(schematicApp);
-      if (style.display !== 'none' && (schematicApp as any).project?.active_page) {
+      if (
+        style.display !== "none" &&
+        (schematicApp as any).project?.active_page
+      ) {
         const activePage = (schematicApp as any).project.active_page;
-        console.log('Current active page:', activePage.project_path);
+        console.log("Current active page:", activePage.project_path);
         // Return the project_path which uniquely identifies the sheet
         return activePage.project_path || null;
       }
@@ -311,7 +345,7 @@ export class ViewerPanel extends HTMLElement {
    * Setup event listeners for keyboard shortcuts
    */
   private setupEventListeners() {
-    console.log('Setting up event listeners');
+    console.log("Setting up event listeners");
     this.createContextMenu();
 
     // Use keyboard shortcut instead: 'C' key to open context menu
@@ -319,33 +353,33 @@ export class ViewerPanel extends HTMLElement {
     let lastMouseY = 0;
 
     // Track screen mouse position
-    document.addEventListener('mousemove', (e: MouseEvent) => {
+    document.addEventListener("mousemove", (e: MouseEvent) => {
       lastMouseX = e.clientX;
       lastMouseY = e.clientY;
     });
 
-    document.addEventListener('keydown', (e: KeyboardEvent) => {
-      console.log('Keydown event:', e.key);
+    document.addEventListener("keydown", (e: KeyboardEvent) => {
+      console.log("Keydown event:", e.key);
       const key = e.key.toLowerCase();
 
       // Press 'C' to open context menu at mouse position
-      if (key === 'c') {
+      if (key === "c") {
         if (!this.currentEmbed) {
-          console.log('No embed loaded, cannot show context menu');
+          console.log("No embed loaded, cannot show context menu");
           return;
         }
         e.preventDefault();
         this.showContextMenu(lastMouseX, lastMouseY);
       }
 
-      if (key === 't') {
+      if (key === "t") {
         if (!this.currentEmbed) return;
         e.preventDefault();
         this.toggleMarkersVisible();
       }
     });
 
-    document.addEventListener('click', () => {
+    document.addEventListener("click", () => {
       this.closeContextMenu();
     });
   }
@@ -355,12 +389,12 @@ export class ViewerPanel extends HTMLElement {
    */
   private createContextMenu() {
     // Remove old menu if exists
-    const oldMenu = this.querySelector('.context-menu');
+    const oldMenu = this.querySelector(".context-menu");
     if (oldMenu) oldMenu.remove();
 
     // Create context menu element
-    const menu = document.createElement('div');
-    menu.className = 'context-menu hidden';
+    const menu = document.createElement("div");
+    menu.className = "context-menu hidden";
     menu.innerHTML = `
       <button class="context-menu-item" data-action="copy">
         <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
@@ -376,33 +410,37 @@ export class ViewerPanel extends HTMLElement {
     this.appendChild(menu);
 
     // Setup menu item click handlers
-    menu.querySelector('[data-action="copy"]')!.addEventListener('click', (e) => {
-      e.stopPropagation();
-      this.copyLocationLink();
-      this.closeContextMenu();
-    });
+    menu
+      .querySelector('[data-action="copy"]')!
+      .addEventListener("click", (e) => {
+        e.stopPropagation();
+        this.copyLocationLink();
+        this.closeContextMenu();
+      });
 
-    menu.querySelector('[data-action="github"]')!.addEventListener('click', (e) => {
-      e.stopPropagation();
-      this.openGitHubIssue();
-      this.closeContextMenu();
-    });
+    menu
+      .querySelector('[data-action="github"]')!
+      .addEventListener("click", (e) => {
+        e.stopPropagation();
+        this.openGitHubIssue();
+        this.closeContextMenu();
+      });
   }
 
   /**
    * Show context menu at position
    */
   private showContextMenu(x: number, y: number) {
-    const menu = this.querySelector('.context-menu') as HTMLElement;
+    const menu = this.querySelector(".context-menu") as HTMLElement;
     if (!menu) {
-      console.error('Context menu element not found!');
+      console.error("Context menu element not found!");
       return;
     }
 
     // Position menu
     menu.style.left = `${x}px`;
     menu.style.top = `${y}px`;
-    menu.classList.remove('hidden');
+    menu.classList.remove("hidden");
 
     // Adjust if menu goes off screen
     const rect = menu.getBoundingClientRect();
@@ -418,8 +456,8 @@ export class ViewerPanel extends HTMLElement {
    * Close context menu
    */
   private closeContextMenu() {
-    const menu = this.querySelector('.context-menu');
-    menu?.classList.add('hidden');
+    const menu = this.querySelector(".context-menu");
+    menu?.classList.add("hidden");
   }
 
   /**
@@ -428,14 +466,14 @@ export class ViewerPanel extends HTMLElement {
   private createLocationMarker(): string {
     const position = this.getCurrentPosition();
     if (!position) {
-      console.warn('No viewer position available');
+      console.warn("No viewer position available");
       return;
     }
 
     // Get mouse position directly from viewer instead of relying on events
     const viewer = this.getViewer();
     if (!viewer || !viewer.mouse_position) {
-      console.warn('No viewer mouse position available');
+      console.warn("No viewer mouse position available");
       return;
     }
 
@@ -443,7 +481,7 @@ export class ViewerPanel extends HTMLElement {
       x: viewer.mouse_position.x,
       y: viewer.mouse_position.y,
     };
-    console.log('Mouse position for marker:', mousePos);
+    console.log("Mouse position for marker:", mousePos);
 
     // Create a marker bounds around current mouse position
     const marker: MarkerBounds = {
@@ -452,7 +490,7 @@ export class ViewerPanel extends HTMLElement {
       width: MARKER.SIZE,
       height: MARKER.SIZE,
     };
-    console.log('Marker bounds:', marker);
+    console.log("Marker bounds:", marker);
 
     // Add temporary marker to show what will be shared
     const centerX = marker.x + marker.width / 2;
@@ -475,9 +513,9 @@ export class ViewerPanel extends HTMLElement {
     const url = this.createLocationMarker();
     try {
       await navigator.clipboard.writeText(url);
-      this.showToast('Link copied to clipboard');
+      this.showToast("Link copied to clipboard");
     } catch (e) {
-      console.error('Failed to copy:', e);
+      console.error("Failed to copy:", e);
     }
   }
 
@@ -489,12 +527,14 @@ export class ViewerPanel extends HTMLElement {
     const route = router.getCurrentRoute();
 
     // Build GitHub issue URL
-    const title = encodeURIComponent(`Review: ${route.projectId || 'Project'}`);
-    const body = encodeURIComponent(`## Location\n\n[View in workspace](${url})\n\n## Comment\n\n`);
+    const title = encodeURIComponent(`Review: ${route.projectId || "Project"}`);
+    const body = encodeURIComponent(
+      `## Location\n\n[View in workspace](${url})\n\n## Comment\n\n`,
+    );
 
     if (this.gitInfo?.repoUrl) {
       const issueUrl = `${this.gitInfo.repoUrl}/issues/new?title=${title}&body=${body}`;
-      window.open(issueUrl, '_blank');
+      window.open(issueUrl, "_blank");
     } else {
       // Fallback: just copy the link
       this.copyLocationLink();
@@ -505,17 +545,17 @@ export class ViewerPanel extends HTMLElement {
    * Show a toast notification
    */
   private showToast(message: string) {
-    const existing = this.querySelector('.toast');
+    const existing = this.querySelector(".toast");
     if (existing) existing.remove();
 
-    const toast = document.createElement('div');
-    toast.className = 'toast';
+    const toast = document.createElement("div");
+    toast.className = "toast";
     toast.textContent = message;
     this.appendChild(toast);
 
-    setTimeout(() => toast.classList.add('show'), 10);
+    setTimeout(() => toast.classList.add("show"), 10);
     setTimeout(() => {
-      toast.classList.remove('show');
+      toast.classList.remove("show");
       setTimeout(() => toast.remove(), TOAST.FADE_DURATION);
     }, TOAST.DURATION);
   }
@@ -524,8 +564,8 @@ export class ViewerPanel extends HTMLElement {
    * Add a file source to the kicanvas embed
    */
   private addSource(embed: HTMLElement, src: string) {
-    const source = document.createElement('kicanvas-source');
-    source.setAttribute('src', src);
+    const source = document.createElement("kicanvas-source");
+    source.setAttribute("src", src);
     embed.appendChild(source);
   }
 
@@ -537,8 +577,8 @@ export class ViewerPanel extends HTMLElement {
     this.clearMarker();
 
     // Show gallery instead of simple welcome message
-    this.innerHTML = '';
-    const gallery = document.createElement('project-gallery');
+    this.innerHTML = "";
+    const gallery = document.createElement("project-gallery");
     this.appendChild(gallery);
 
     // Wait for next tick to ensure custom element is upgraded
@@ -573,4 +613,4 @@ export class ViewerPanel extends HTMLElement {
 }
 
 // Register custom element
-customElements.define('viewer-panel', ViewerPanel);
+customElements.define("viewer-panel", ViewerPanel);

@@ -4,17 +4,26 @@
  * Respects .gitignore
  */
 
-import * as fs from 'fs';
-import * as path from 'path';
-import type { WorkspaceConfig } from '../lib/project-index.js';
-import { initializePaths, loadConfig, getProjectDirs, getRootDir, getOutputDir, getTrackedFiles } from './indexer-utils.js';
+import * as fs from "fs";
+import * as path from "path";
+import type { WorkspaceConfig } from "../lib/project-index.js";
+import {
+  initializePaths,
+  loadConfig,
+  getProjectDirs,
+  getRootDir,
+  getOutputDir,
+  getTrackedFiles,
+} from "./indexer-utils.js";
 
 export function copyPublicFiles() {
   initializePaths();
   const config = loadConfig();
   const projectDirs = getProjectDirs(config);
 
-  console.log(`Copying from directories: ${projectDirs.map(d => path.relative(getRootDir(), d)).join(', ')}`);
+  console.log(
+    `Copying from directories: ${projectDirs.map((d) => path.relative(getRootDir(), d)).join(", ")}`,
+  );
 
   // Clean public directories for each project directory
   for (const projectDir of projectDirs) {
@@ -28,7 +37,7 @@ export function copyPublicFiles() {
   // Get tracked files from all project directories
   const trackedFiles = getTrackedFiles(projectDirs);
   if (trackedFiles.size === 0) {
-    console.log('No tracked files found in configured directories');
+    console.log("No tracked files found in configured directories");
     return;
   }
 

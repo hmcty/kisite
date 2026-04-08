@@ -3,12 +3,27 @@
  * Project indexer - scans project directories and generates project-index.json
  */
 
-import * as fs from 'fs';
-import * as path from 'path';
-import { execSync, spawnSync } from 'child_process';
-import archiver from 'archiver';
-import type { GitInfo, ProjectIndex, ProjectMetadata, SchematicFile, SheetInfo, WorkspaceConfig } from '../lib/project-index.js';
-import { isParentOf, initializePaths, loadConfig, getProjectDirs, getRootDir, getOutputDir, getTrackedFiles } from './indexer-utils.js';
+import * as fs from "fs";
+import * as path from "path";
+import { execSync, spawnSync } from "child_process";
+import archiver from "archiver";
+import type {
+  GitInfo,
+  ProjectIndex,
+  ProjectMetadata,
+  SchematicFile,
+  SheetInfo,
+  WorkspaceConfig,
+} from "../lib/project-index.js";
+import {
+  isParentOf,
+  initializePaths,
+  loadConfig,
+  getProjectDirs,
+  getRootDir,
+  getOutputDir,
+  getTrackedFiles,
+} from "./indexer-utils.js";
 
 function toHttpsUrl(gitUrl: string): string {
   const sshMatch = gitUrl.match(/git@([^:]+):(.+?)(?:\.git)?$/);
@@ -30,18 +45,18 @@ function toHttpsUrl(gitUrl: string): string {
 function getGitInfo(): GitInfo {
   const exec = (cmd: string): string => {
     try {
-      return execSync(cmd, { cwd: getRootDir(), encoding: 'utf-8' }).trim();
+      return execSync(cmd, { cwd: getRootDir(), encoding: "utf-8" }).trim();
     } catch {
-      return '';
+      return "";
     }
   };
 
   // Get commit hash
-  const commitHash = exec('git rev-parse HEAD');
-  const commitHashShort = exec('git rev-parse --short HEAD');
+  const commitHash = exec("git rev-parse HEAD");
+  const commitHashShort = exec("git rev-parse --short HEAD");
 
   // Get remote URL and parse it
-  const remoteUrl = exec('git remote get-url origin');
+  const remoteUrl = exec("git remote get-url origin");
   let repoUrl: string | undefined;
   let repoName = path.basename(getRootDir()); // Fallback to directory name
   if (remoteUrl) {
@@ -49,7 +64,7 @@ function getGitInfo(): GitInfo {
     // git@github.com:user/repo.git
     // https://github.com/user/repo.git
     repoUrl = toHttpsUrl(remoteUrl);
-    repoName = repoUrl.split('/').pop() || repoName;
+    repoName = repoUrl.split("/").pop() || repoName;
   }
 
   // Build commit URL
@@ -77,18 +92,23 @@ interface SubmoduleInfo {
 function getSubmodules(): Map<string, SubmoduleInfo> {
   const submodules = new Map<string, SubmoduleInfo>();
 
-  const cmd = 'echo "$displaypath $(git remote get-url origin) $(git rev-parse HEAD)"';
-  const result = spawnSync('git', ['submodule', 'foreach', '--quiet', '--recursive', cmd], {  
-    cwd: getRootDir(),
-    encoding: 'utf-8',
-  });
+  const cmd =
+    'echo "$displaypath $(git remote get-url origin) $(git rev-parse HEAD)"';
+  const result = spawnSync(
+    "git",
+    ["submodule", "foreach", "--quiet", "--recursive", cmd],
+    {
+      cwd: getRootDir(),
+      encoding: "utf-8",
+    },
+  );
   if (result.error || result.status !== 0) {
     throw new Error(`Git command failed: ${result.stderr}`);
   }
 
   const output = result.stdout.trim();
-  for (const line of output.split('\n')) {
-    const parts = line.split(' ');
+  for (const line of output.split("\n")) {
+    const parts = line.split(" ");
     if (parts.length >= 3) {
       const displayPath = parts[0];
       const url = toHttpsUrl(parts[1]);
@@ -102,14 +122,26 @@ function getSubmodules(): Map<string, SubmoduleInfo> {
 }
 
 // Get git info for a specific path (handles submodules)
-function getGitInfoForPath(projectPath: string, submodules: Map<string, SubmoduleInfo>): GitInfo | undefined {
+function getGitInfoForPath(
+  projectPath: string,
+  submodules: Map<string, SubmoduleInfo>,
+): GitInfo | undefined {
   // Check if this path is within a submodule
   for (const [submodulePath, submoduleInfo] of submodules) {
-    console.log(`Checking if project path ${projectPath} is in submodule ${submoduleInfo.path} (absolute path: ${submodulePath})`);
-    if (isParentOf(submodulePath, projectPath) || submoduleInfo.path === projectPath) {
+    console.log(
+      `Checking if project path ${projectPath} is in submodule ${submoduleInfo.path} (absolute path: ${submodulePath})`,
+    );
+    if (
+      isParentOf(submodulePath, projectPath) ||
+      submoduleInfo.path === projectPath
+    ) {
       // This project is in a submodule
       const commitHashShort = submoduleInfo.commitHash.substring(0, 7);
-      const repoName = submoduleInfo.url.split('/').pop()?.replace(/\.git$/, '') || '';
+      const repoName =
+        submoduleInfo.url
+          .split("/")
+          .pop()
+          ?.replace(/\.git$/, "") || "";
       const commitUrl = `${submoduleInfo.url}/commit/${submoduleInfo.commitHash}`;
 
       console.log(`Project is in submodule: ${submoduleInfo.path}`);
@@ -132,11 +164,14 @@ function getGitInfoForPath(projectPath: string, submodules: Map<string, Submodul
 }
 
 // Find all .kicad_pro files in tracked files
-function findProjectFiles(trackedFiles: Set<string>, projectDirs: string[]): string[] {
+function findProjectFiles(
+  trackedFiles: Set<string>,
+  projectDirs: string[],
+): string[] {
   const results: string[] = [];
 
   for (const file of trackedFiles) {
-    if (!file.endsWith('.kicad_pro')) continue;
+    if (!file.endsWith(".kicad_pro")) continue;
     results.push(file);
   }
 
@@ -144,12 +179,15 @@ function findProjectFiles(trackedFiles: Set<string>, projectDirs: string[]): str
 }
 
 // Get tracked schematic files in a directory
-function getTrackedSchematics(projectDir: string, trackedFiles: Set<string>): string[] {
+function getTrackedSchematics(
+  projectDir: string,
+  trackedFiles: Set<string>,
+): string[] {
   const results: string[] = [];
 
   for (const file of trackedFiles) {
     if (!isParentOf(projectDir, file)) continue;
-    if (!file.endsWith('.kicad_sch')) continue;
+    if (!file.endsWith(".kicad_sch")) continue;
     if (path.dirname(file) !== projectDir) continue; // Only direct children
 
     results.push(file);
@@ -159,7 +197,10 @@ function getTrackedSchematics(projectDir: string, trackedFiles: Set<string>): st
 }
 
 // Get all tracked files in a project directory (for zipping)
-function getProjectFiles(projectDir: string, trackedFiles: Set<string>): string[] {
+function getProjectFiles(
+  projectDir: string,
+  trackedFiles: Set<string>,
+): string[] {
   const results: string[] = [];
 
   for (const file of trackedFiles) {
@@ -176,9 +217,11 @@ async function createProjectZip(
   projectName: string,
   trackedFiles: Set<string>,
   outputDir: string,
-  commitHashShort: string
+  commitHashShort: string,
 ): Promise<string> {
-  const zipFileName = commitHashShort ? `${projectName}-${commitHashShort}.zip` : `${projectName}.zip`;
+  const zipFileName = commitHashShort
+    ? `${projectName}-${commitHashShort}.zip`
+    : `${projectName}.zip`;
   const zipPath = path.join(outputDir, zipFileName);
 
   // Ensure output directory exists
@@ -189,16 +232,17 @@ async function createProjectZip(
 
   return new Promise((resolve, reject) => {
     const output = fs.createWriteStream(zipPath);
-    const archive = archiver('zip', { zlib: { level: 9 } });
+    const archive = archiver("zip", { zlib: { level: 9 } });
 
-    output.on('close', () => resolve(zipFileName));
-    archive.on('error', reject);
+    output.on("close", () => resolve(zipFileName));
+    archive.on("error", reject);
 
     archive.pipe(output);
 
     // Add each file to the archive
     for (const filePath of projectFiles) {
-      if (!fs.existsSync(filePath) || fs.statSync(filePath).isDirectory()) continue;
+      if (!fs.existsSync(filePath) || fs.statSync(filePath).isDirectory())
+        continue;
       const relativePath = path.relative(projectDir, filePath);
       archive.file(filePath, { name: `${projectName}/${relativePath}` });
     }
@@ -208,19 +252,30 @@ async function createProjectZip(
 }
 
 // Parse a KiCad project file and extract metadata
-function parseProjectFile(projectPath: string, trackedFiles: Set<string>, submodules: Map<string, SubmoduleInfo>, projectDirs: string[]): ProjectMetadata | null {
+function parseProjectFile(
+  projectPath: string,
+  trackedFiles: Set<string>,
+  submodules: Map<string, SubmoduleInfo>,
+  projectDirs: string[],
+): ProjectMetadata | null {
   try {
-    const projectData = JSON.parse(fs.readFileSync(projectPath, 'utf-8'));
+    const projectData = JSON.parse(fs.readFileSync(projectPath, "utf-8"));
     const projectDir = path.dirname(projectPath);
-    const projectName = path.basename(projectPath, '.kicad_pro');
+    const projectName = path.basename(projectPath, ".kicad_pro");
 
     // Find which project directory this file belongs to
     console.log(`\nParsing project: ${projectName}`);
     console.log(`  Path: ${projectPath}`);
-    console.log(`  Project directories: ${projectDirs.map(d => path.relative(getRootDir(), d)).join(', ')}`);
-    const containingDir = projectDirs.find(dir => isParentOf(dir, projectPath));
+    console.log(
+      `  Project directories: ${projectDirs.map((d) => path.relative(getRootDir(), d)).join(", ")}`,
+    );
+    const containingDir = projectDirs.find((dir) =>
+      isParentOf(dir, projectPath),
+    );
     if (!containingDir) {
-      console.warn(`Project file ${projectPath} is not in any configured project directory`);
+      console.warn(
+        `Project file ${projectPath} is not in any configured project directory`,
+      );
       return null;
     }
 
@@ -230,7 +285,7 @@ function parseProjectFile(projectPath: string, trackedFiles: Set<string>, submod
     // Generate web paths (relative to the index.html location)
     // Use the source directory name as the base (e.g., 'projects', 'hardware', 'pcbs')
     const sourceBaseName = path.relative(getRootDir(), containingDir);
-    const webBasePath = `${sourceBaseName}/${relativePath}`.replace(/\\/g, '/');
+    const webBasePath = `${sourceBaseName}/${relativePath}`.replace(/\\/g, "/");
     const projectFile = `${webBasePath}/${path.basename(projectPath)}`;
 
     // Extract sheets from project file
@@ -253,7 +308,7 @@ function parseProjectFile(projectPath: string, trackedFiles: Set<string>, submod
     for (const schFile of schFiles) {
       schematics.push({
         path: `${webBasePath}/${path.basename(schFile)}`,
-        name: path.basename(schFile, '.kicad_sch'),
+        name: path.basename(schFile, ".kicad_sch"),
       });
     }
 
@@ -267,12 +322,12 @@ function parseProjectFile(projectPath: string, trackedFiles: Set<string>, submod
 
     // Look for README.md or similar markdown file
     let readme: string | undefined;
-    const readmeFiles = ['README.md', 'readme.md', 'Readme.md', 'README.MD'];
+    const readmeFiles = ["README.md", "readme.md", "Readme.md", "README.MD"];
     for (const readmeFile of readmeFiles) {
       const readmePath = path.join(projectDir, readmeFile);
       if (trackedFiles.has(readmePath) && fs.existsSync(readmePath)) {
         try {
-          readme = fs.readFileSync(readmePath, 'utf-8');
+          readme = fs.readFileSync(readmePath, "utf-8");
           break;
         } catch (e) {
           console.warn(`Failed to read ${readmeFile}:`, e);
@@ -291,7 +346,7 @@ function parseProjectFile(projectPath: string, trackedFiles: Set<string>, submod
       console.warn(`Failed to get file stats for ${projectPath}:`, e);
     }
 
-    const id = relativePath.replace(/\\/g, '/') || projectName;
+    const id = relativePath.replace(/\\/g, "/") || projectName;
     const projectGitInfo = getGitInfoForPath(projectDir, submodules);
 
     return {
@@ -315,14 +370,16 @@ function parseProjectFile(projectPath: string, trackedFiles: Set<string>, submod
 
 // Main indexing function
 export async function indexProjects() {
-  console.log('Starting project indexer...');
+  console.log("Starting project indexer...");
 
   initializePaths();
   const config = loadConfig();
 
   // Get project directories
   const projectDirs = getProjectDirs(config);
-  console.log(`Scanning directories: ${projectDirs.map(d => path.relative(getRootDir(), d)).join(', ')}`);
+  console.log(
+    `Scanning directories: ${projectDirs.map((d) => path.relative(getRootDir(), d)).join(", ")}`,
+  );
 
   // Get git info
   const git = getGitInfo();
@@ -330,12 +387,12 @@ export async function indexProjects() {
   console.log(`Title: ${title}`);
   console.log(`Repo: ${git.repoName} @ ${git.commitHashShort}`);
 
-  console.log('Getting tracked files...');
+  console.log("Getting tracked files...");
   const trackedFiles = getTrackedFiles(projectDirs);
   console.log(`Found ${trackedFiles.size} tracked files`);
 
   // Get submodule information
-  console.log('Detecting submodules...');
+  console.log("Detecting submodules...");
   const submodules = getSubmodules();
   if (submodules.size > 0) {
     console.log(`Found ${submodules.size} submodules:`);
@@ -349,7 +406,7 @@ export async function indexProjects() {
   console.log(`Found ${projectFiles.length} project files`);
 
   // Prepare downloads directory
-  const downloadsDir = path.join(getOutputDir(), 'downloads');
+  const downloadsDir = path.join(getOutputDir(), "downloads");
   if (fs.existsSync(downloadsDir)) {
     fs.rmSync(downloadsDir, { recursive: true });
   }
@@ -357,17 +414,30 @@ export async function indexProjects() {
 
   // Parse each project and generate zip files
   const projects: ProjectMetadata[] = [];
-  console.log('\nProcessing projects...');
+  console.log("\nProcessing projects...");
   for (const projectFile of projectFiles) {
-    const project = parseProjectFile(projectFile, trackedFiles, submodules, projectDirs);
+    const project = parseProjectFile(
+      projectFile,
+      trackedFiles,
+      submodules,
+      projectDirs,
+    );
     if (project) {
       // Generate zip file - find the containing project directory
       const projectDir = path.dirname(projectFile);
-      const zipFileName = await createProjectZip(projectDir, project.name, trackedFiles, downloadsDir, git.commitHashShort);
+      const zipFileName = await createProjectZip(
+        projectDir,
+        project.name,
+        trackedFiles,
+        downloadsDir,
+        git.commitHashShort,
+      );
       project.zip = `downloads/${zipFileName}`;
 
       projects.push(project);
-      console.log(`  - ${project.name} (${project.schematics.length} schematics${project.pcb ? ', PCB' : ''}, zip)`);
+      console.log(
+        `  - ${project.name} (${project.schematics.length} schematics${project.pcb ? ", PCB" : ""}, zip)`,
+      );
     }
   }
 
@@ -376,7 +446,7 @@ export async function indexProjects() {
 
   // Generate index
   const index: ProjectIndex = {
-    version: '1.0.0',
+    version: "1.0.0",
     generatedAt: new Date().toISOString(),
     title,
     git,
@@ -384,7 +454,7 @@ export async function indexProjects() {
   };
 
   // Write to public directory
-  const outputPath = path.join(getOutputDir(), 'project-index.json');
+  const outputPath = path.join(getOutputDir(), "project-index.json");
   fs.mkdirSync(path.dirname(outputPath), { recursive: true });
   fs.writeFileSync(outputPath, JSON.stringify(index, null, 2));
 

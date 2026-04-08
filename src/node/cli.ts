@@ -1,15 +1,21 @@
 #!/usr/bin/env node
 
-import * as fs from 'fs';
-import * as path from 'path';
-import { fileURLToPath } from 'url';
-import { createServer, build, preview, type InlineConfig, type Plugin } from 'vite';
+import * as fs from "fs";
+import * as path from "path";
+import { fileURLToPath } from "url";
+import {
+  createServer,
+  build,
+  preview,
+  type InlineConfig,
+  type Plugin,
+} from "vite";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // Resolve the kisite package root (two levels up from src/node/)
-const KISITE_ROOT = path.resolve(__dirname, '../..');
+const KISITE_ROOT = path.resolve(__dirname, "../..");
 
 function printUsage() {
   console.log(`
@@ -29,7 +35,7 @@ Options:
 
 // Create the working directory in the user's project
 function createWorkDir(): string {
-  const workDir = path.join(process.cwd(), '.kisite');
+  const workDir = path.join(process.cwd(), ".kisite");
   // Clean and recreate
   if (fs.existsSync(workDir)) {
     fs.rmSync(workDir, { recursive: true, force: true });
@@ -42,82 +48,86 @@ function createWorkDir(): string {
 function setupWorkDir(workDir: string): void {
   // Copy index.html
   fs.copyFileSync(
-    path.join(KISITE_ROOT, 'index.html'),
-    path.join(workDir, 'index.html')
+    path.join(KISITE_ROOT, "index.html"),
+    path.join(workDir, "index.html"),
   );
 
   // Copy src directory for Vite to compile
-  fs.cpSync(
-    path.join(KISITE_ROOT, 'src'),
-    path.join(workDir, 'src'),
-    { recursive: true }
-  );
+  fs.cpSync(path.join(KISITE_ROOT, "src"), path.join(workDir, "src"), {
+    recursive: true,
+  });
 
   // Copy tsconfig.json for TypeScript
-  if (fs.existsSync(path.join(KISITE_ROOT, 'tsconfig.json'))) {
+  if (fs.existsSync(path.join(KISITE_ROOT, "tsconfig.json"))) {
     fs.copyFileSync(
-      path.join(KISITE_ROOT, 'tsconfig.json'),
-      path.join(workDir, 'tsconfig.json')
+      path.join(KISITE_ROOT, "tsconfig.json"),
+      path.join(workDir, "tsconfig.json"),
     );
   }
 
   // Symlink node_modules so Vite can resolve dependencies
-  const nodeModulesSource = path.join(KISITE_ROOT, 'node_modules');
-  const nodeModulesDest = path.join(workDir, 'node_modules');
+  const nodeModulesSource = path.join(KISITE_ROOT, "node_modules");
+  const nodeModulesDest = path.join(workDir, "node_modules");
   if (fs.existsSync(nodeModulesSource)) {
-    fs.symlinkSync(nodeModulesSource, nodeModulesDest, 'dir');
+    fs.symlinkSync(nodeModulesSource, nodeModulesDest, "dir");
   }
 
   // Create public directory
-  fs.mkdirSync(path.join(workDir, 'public'), { recursive: true });
+  fs.mkdirSync(path.join(workDir, "public"), { recursive: true });
 
   // Copy KiCanvas - check lib/ first (npm package), then vendor/ (local dev)
   const kicanvasLocations = [
-    path.join(KISITE_ROOT, 'lib/kicanvas.js'),
-    path.join(KISITE_ROOT, 'vendor/kicanvas/build/kicanvas.js'),
+    path.join(KISITE_ROOT, "lib/kicanvas.js"),
+    path.join(KISITE_ROOT, "vendor/kicanvas/build/kicanvas.js"),
   ];
-  const kicanvasDest = path.join(workDir, 'public/kicanvas/kicanvas.js');
+  const kicanvasDest = path.join(workDir, "public/kicanvas/kicanvas.js");
   fs.mkdirSync(path.dirname(kicanvasDest), { recursive: true });
 
-  const kicanvasSource = kicanvasLocations.find(p => fs.existsSync(p));
+  const kicanvasSource = kicanvasLocations.find((p) => fs.existsSync(p));
   if (kicanvasSource) {
     fs.copyFileSync(kicanvasSource, kicanvasDest);
   } else {
-    console.warn(`Warning: KiCanvas not found. Checked: ${kicanvasLocations.join(', ')}`);
+    console.warn(
+      `Warning: KiCanvas not found. Checked: ${kicanvasLocations.join(", ")}`,
+    );
   }
 }
-
 
 // Create the Vite plugin for serving KiCad files
 function createKiCadPlugin(publicDir: string): Plugin {
   return {
-    name: 'serve-kicad-files',
+    name: "serve-kicad-files",
     configureServer(server) {
       server.middlewares.use((req, res, next) => {
-        if (req.url?.match(/\.(kicad_pro|kicad_sch|kicad_pcb|zip|png|jpg|jpeg|gif|svg|webp|md)$/i)) {
-          const requestedPath = req.url.split('?')[0];
+        if (
+          req.url?.match(
+            /\.(kicad_pro|kicad_sch|kicad_pcb|zip|png|jpg|jpeg|gif|svg|webp|md)$/i,
+          )
+        ) {
+          const requestedPath = req.url.split("?")[0];
           const filePath = path.normalize(path.join(publicDir, requestedPath));
 
           if (!filePath.startsWith(publicDir)) {
             res.statusCode = 403;
-            res.end('Forbidden');
+            res.end("Forbidden");
             return;
           }
 
           if (fs.existsSync(filePath) && fs.statSync(filePath).isFile()) {
             const content = fs.readFileSync(filePath);
 
-            let contentType = 'application/octet-stream';
-            if (req.url.endsWith('.zip')) contentType = 'application/zip';
-            else if (req.url.match(/\.(kicad_pro|kicad_sch|kicad_pcb)$/)) contentType = 'application/json';
-            else if (req.url.endsWith('.png')) contentType = 'image/png';
-            else if (req.url.match(/\.(jpg|jpeg)$/)) contentType = 'image/jpeg';
-            else if (req.url.endsWith('.gif')) contentType = 'image/gif';
-            else if (req.url.endsWith('.svg')) contentType = 'image/svg+xml';
-            else if (req.url.endsWith('.webp')) contentType = 'image/webp';
-            else if (req.url.endsWith('.md')) contentType = 'text/markdown';
+            let contentType = "application/octet-stream";
+            if (req.url.endsWith(".zip")) contentType = "application/zip";
+            else if (req.url.match(/\.(kicad_pro|kicad_sch|kicad_pcb)$/))
+              contentType = "application/json";
+            else if (req.url.endsWith(".png")) contentType = "image/png";
+            else if (req.url.match(/\.(jpg|jpeg)$/)) contentType = "image/jpeg";
+            else if (req.url.endsWith(".gif")) contentType = "image/gif";
+            else if (req.url.endsWith(".svg")) contentType = "image/svg+xml";
+            else if (req.url.endsWith(".webp")) contentType = "image/webp";
+            else if (req.url.endsWith(".md")) contentType = "text/markdown";
 
-            res.setHeader('Content-Type', contentType);
+            res.setHeader("Content-Type", contentType);
             res.end(content);
             return;
           }
@@ -130,21 +140,21 @@ function createKiCadPlugin(publicDir: string): Plugin {
 
 // Create inline Vite config
 function createViteConfig(workDir: string, outDir?: string): InlineConfig {
-  const publicDir = path.join(workDir, 'public');
+  const publicDir = path.join(workDir, "public");
 
   return {
     root: workDir,
-    base: '',
+    base: "",
     publicDir,
-    appType: 'spa',
+    appType: "spa",
     build: {
-      outDir: outDir || path.join(workDir, 'dist'),
-      assetsDir: 'assets',
+      outDir: outDir || path.join(workDir, "dist"),
+      assetsDir: "assets",
       sourcemap: true,
       emptyOutDir: true,
       rollupOptions: {
         // Don't try to bundle kicanvas - it's in the public directory
-        external: ['/kicanvas/kicanvas.js'],
+        external: ["/kicanvas/kicanvas.js"],
       },
     },
     server: {
@@ -158,13 +168,13 @@ function createViteConfig(workDir: string, outDir?: string): InlineConfig {
 }
 
 async function runIndexer(workDir: string) {
-  console.log('Indexing projects...');
+  console.log("Indexing projects...");
 
   // Set OUTPUT_DIR to workDir's public directory
   const originalOutputDir = process.env.KISITE_OUTPUT_DIR;
-  process.env.KISITE_OUTPUT_DIR = path.join(workDir, 'public');
+  process.env.KISITE_OUTPUT_DIR = path.join(workDir, "public");
 
-  const { indexProjects } = await import('../indexer/scan-projects.js');
+  const { indexProjects } = await import("../indexer/scan-projects.js");
   await indexProjects();
 
   // Restore
@@ -176,12 +186,12 @@ async function runIndexer(workDir: string) {
 }
 
 async function copyProjectFiles(workDir: string) {
-  console.log('Copying project files...');
+  console.log("Copying project files...");
 
   const originalOutputDir = process.env.KISITE_OUTPUT_DIR;
-  process.env.KISITE_OUTPUT_DIR = path.join(workDir, 'public');
+  process.env.KISITE_OUTPUT_DIR = path.join(workDir, "public");
 
-  const { copyPublicFiles } = await import('../indexer/copy-public-files.js');
+  const { copyPublicFiles } = await import("../indexer/copy-public-files.js");
   await copyPublicFiles();
 
   if (originalOutputDir) {
@@ -200,7 +210,7 @@ async function prepare(workDir: string) {
 async function runBuild() {
   const workDir = createWorkDir();
   const projectRoot = process.cwd();
-  const outDir = path.join(projectRoot, 'dist');
+  const outDir = path.join(projectRoot, "dist");
 
   await prepare(workDir);
 
@@ -212,7 +222,7 @@ async function runBuild() {
 
 async function runPreview() {
   const projectRoot = process.cwd();
-  const outDir = path.join(projectRoot, 'dist');
+  const outDir = path.join(projectRoot, "dist");
 
   if (!fs.existsSync(outDir)) {
     console.error(`Error: No build found at ${outDir}`);
@@ -222,9 +232,9 @@ async function runPreview() {
 
   const server = await preview({
     root: projectRoot,
-    base: '',
+    base: "",
     build: {
-      outDir: 'dist',
+      outDir: "dist",
     },
     preview: {
       port: 4173,
@@ -238,9 +248,9 @@ async function runPreview() {
 
 async function main() {
   const args = process.argv.slice(2);
-  const command = args[0] || 'build';
+  const command = args[0] || "build";
 
-  if (args.includes('--help') || args.includes('-h')) {
+  if (args.includes("--help") || args.includes("-h")) {
     printUsage();
     process.exit(0);
   }
@@ -256,10 +266,10 @@ async function main() {
 
   try {
     switch (command) {
-      case 'build':
+      case "build":
         await runBuild();
         break;
-      case 'preview':
+      case "preview":
         await runPreview();
         break;
       default:
@@ -268,7 +278,7 @@ async function main() {
         process.exit(1);
     }
   } catch (error) {
-    console.error('Error:', error);
+    console.error("Error:", error);
     process.exit(1);
   }
 }

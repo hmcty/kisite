@@ -23,14 +23,14 @@ Create `kisite-config.json` in the root directory:
 ```json
 {
   "title": "My KiCad Projects",
-  "projectDirs": ["projects"],
+  "projectDirs": ["projects"]
 }
 ```
 
-| Field | Description | Default |
-|-------|-------------|---------|
-| `title` | Displayed as site title | Repository name |
-| `projectDirs` | Array of directories containing KiCad project files | `["projects"]` |
+| Field         | Description                                         | Default         |
+| ------------- | --------------------------------------------------- | --------------- |
+| `title`       | Displayed as site title                             | Repository name |
+| `projectDirs` | Array of directories containing KiCad project files | `["projects"]`  |
 
 ### Deployment
 
@@ -69,7 +69,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
-          node-version: '24'
+          node-version: "24"
 
       - run: npm install kisite@1.1.0
       - run: npm exec kisite build
@@ -80,7 +80,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: './dist'
+          path: "./dist"
 
   deploy:
     environment:
@@ -127,6 +127,5 @@ npm exec kisite dev
 ## Alternatives
 
 - [KiCAD-PRISM](https://github.com/krishna-swaroop/KiCAD-Prism/tree/main)
-    - KiCAD-PRISM provides a more comprehensive backend for design reviews and
-      collaboration, but requires self-hosting and maintenance
-
+  - KiCAD-PRISM provides a more comprehensive backend for design reviews and
+    collaboration, but requires self-hosting and maintenance

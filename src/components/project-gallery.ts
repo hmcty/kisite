@@ -2,14 +2,14 @@
  * Project gallery component - displays projects in a card grid layout
  */
 
-import DOMPurify from 'dompurify';
-import type { ProjectMetadata, GitInfo } from '../lib/project-index.js';
-import { router } from '../lib/router.js';
-import { githubIcon, isSafeUrl } from '../lib/html-utils.js';
+import DOMPurify from "dompurify";
+import type { ProjectMetadata, GitInfo } from "../lib/project-index.js";
+import { router } from "../lib/router.js";
+import { githubIcon, isSafeUrl } from "../lib/html-utils.js";
 
 export class ProjectGallery extends HTMLElement {
   private projects: ProjectMetadata[] = [];
-  private title: string = 'Projects';
+  private title: string = "Projects";
   private gitInfo: GitInfo | null = null;
 
   constructor() {
@@ -43,7 +43,7 @@ export class ProjectGallery extends HTMLElement {
    * Handle project card click
    */
   private handleProjectClick(projectId: string) {
-    router.navigate('/project', projectId);
+    router.navigate("/project", projectId);
   }
 
   /**
@@ -65,7 +65,7 @@ export class ProjectGallery extends HTMLElement {
     }
 
     // Build GitHub link if available
-    let githubLink = '';
+    let githubLink = "";
     if (this.gitInfo?.repoUrl && isSafeUrl(this.gitInfo.repoUrl)) {
       githubLink = `
         <a href="${this.gitInfo.repoUrl}" target="_blank" rel="noopener" class="gallery-github-link" title="View on GitHub">
@@ -81,10 +81,10 @@ export class ProjectGallery extends HTMLElement {
             <h2>${DOMPurify.sanitize(this.title)}</h2>
             ${githubLink}
           </div>
-          <span class="gallery-count">${this.projects.length} project${this.projects.length !== 1 ? 's' : ''}</span>
+          <span class="gallery-count">${this.projects.length} project${this.projects.length !== 1 ? "s" : ""}</span>
         </div>
         <div class="gallery-grid">
-          ${this.projects.map(project => this.renderProjectCard(project)).join('')}
+          ${this.projects.map((project) => this.renderProjectCard(project)).join("")}
         </div>
       </div>
     `;
@@ -92,27 +92,27 @@ export class ProjectGallery extends HTMLElement {
     this.innerHTML = DOMPurify.sanitize(html);
 
     // Create kicanvas-embed elements for each card preview
-    this.querySelectorAll('.card-preview').forEach((previewEl) => {
-      const projectId = previewEl.getAttribute('data-preview');
+    this.querySelectorAll(".card-preview").forEach((previewEl) => {
+      const projectId = previewEl.getAttribute("data-preview");
       if (!projectId) return;
 
-      const project = this.projects.find(p => p.id === projectId);
+      const project = this.projects.find((p) => p.id === projectId);
       if (!project) return;
 
-      const embed = document.createElement('kicanvas-embed');
-      embed.setAttribute('controls', 'none');
-      embed.className = 'card-kicanvas';
+      const embed = document.createElement("kicanvas-embed");
+      embed.setAttribute("controls", "none");
+      embed.className = "card-kicanvas";
 
       // Prefer PCB, otherwise use first schematic
-      const fileToShow = project.pcb || (project.schematics[0]?.path);
+      const fileToShow = project.pcb || project.schematics[0]?.path;
       if (fileToShow) {
-        const source = document.createElement('kicanvas-source');
-        source.setAttribute('src', fileToShow);
+        const source = document.createElement("kicanvas-source");
+        source.setAttribute("src", fileToShow);
         embed.appendChild(source);
       }
 
       // Insert embed before download button (if it exists)
-      const downloadBtn = previewEl.querySelector('.card-download');
+      const downloadBtn = previewEl.querySelector(".card-download");
       if (downloadBtn) {
         previewEl.insertBefore(embed, downloadBtn);
       } else {
@@ -120,15 +120,15 @@ export class ProjectGallery extends HTMLElement {
       }
     });
 
-    this.querySelectorAll('.project-card').forEach(card => {
-      card.addEventListener('click', (e) => {
+    this.querySelectorAll(".project-card").forEach((card) => {
+      card.addEventListener("click", (e) => {
         // Don't navigate if clicking on download button
         const target = e.target as HTMLElement;
-        if (target.closest('[data-download]')) {
+        if (target.closest("[data-download]")) {
           return;
         }
 
-        const projectId = card.getAttribute('data-project-id');
+        const projectId = card.getAttribute("data-project-id");
         if (projectId) {
           this.handleProjectClick(projectId);
         }
@@ -155,7 +155,7 @@ export class ProjectGallery extends HTMLElement {
             <path d="M19 12v7H5v-7H3v7c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2v-7h-2zm-6 .67l2.59-2.58L17 11.5l-5 5-5-5 1.41-1.41L11 12.67V3h2z"/>
           </svg>
         </a>`
-      : '';
+      : "";
 
     return `
       <div class="project-card" data-project-id="${project.id}">
@@ -164,13 +164,12 @@ export class ProjectGallery extends HTMLElement {
         </div>
         <div class="card-content">
           <div class="card-name">${project.name}</div>
-          <div class="card-badges">${badges.join(' ')}</div>
+          <div class="card-badges">${badges.join(" ")}</div>
         </div>
       </div>
     `;
   }
-
 }
 
 // Register custom element
-customElements.define('project-gallery', ProjectGallery);
+customElements.define("project-gallery", ProjectGallery);

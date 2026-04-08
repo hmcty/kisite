@@ -55,10 +55,12 @@ dist/
 public/
 
 # Kicanvas vendor build
+lib/
 vendor/kicanvas/node_modules/
 vendor/kicanvas/build/
 
 # KiSite build artifacts
 .kisite/
-lib/
 
+# Agent artifacts
+.claude/

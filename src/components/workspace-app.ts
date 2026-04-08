@@ -2,19 +2,23 @@
  * Main application component
  */
 
-import DOMPurify from 'dompurify';
-import { loadProjectIndex, type GitInfo, type ProjectMetadata } from '../lib/project-index.js';
-import { router } from '../lib/router.js';
-import { isSafeUrl, githubIcon } from '../lib/html-utils.js';
-import { SIDEBAR } from '../lib/constants.js';
-import { ProjectList } from './project-list.js';
-import { ViewerPanel } from './viewer-panel.js';
+import DOMPurify from "dompurify";
+import {
+  loadProjectIndex,
+  type GitInfo,
+  type ProjectMetadata,
+} from "../lib/project-index.js";
+import { router } from "../lib/router.js";
+import { isSafeUrl, githubIcon } from "../lib/html-utils.js";
+import { SIDEBAR } from "../lib/constants.js";
+import { ProjectList } from "./project-list.js";
+import { ViewerPanel } from "./viewer-panel.js";
 
 export class WorkspaceApp extends HTMLElement {
   private projectList!: ProjectList;
   private viewerPanel!: ViewerPanel;
   private projects: ProjectMetadata[] = [];
-  private title: string = 'KiSite';
+  private title: string = "KiSite";
   private sidebarCollapsed: boolean = false;
   private sidebarWidth: number = 300; // Track uncollapsed width
   private gitInfo: GitInfo | null = null;
@@ -41,7 +45,7 @@ export class WorkspaceApp extends HTMLElement {
       this.title = DOMPurify.sanitize(index.title);
 
       // Update title in UI
-      const titleEl = this.querySelector('.sidebar-title');
+      const titleEl = this.querySelector(".sidebar-title");
       if (titleEl) {
         titleEl.textContent = this.title;
       }
@@ -61,8 +65,8 @@ export class WorkspaceApp extends HTMLElement {
 
       console.log(`Loaded ${this.projects.length} projects`);
     } catch (error) {
-      console.error('Failed to load projects:', error);
-      this.viewerPanel.showError('Failed to load project index');
+      console.error("Failed to load projects:", error);
+      this.viewerPanel.showError("Failed to load project index");
     }
   }
 
@@ -70,11 +74,11 @@ export class WorkspaceApp extends HTMLElement {
    * Update git info in sidebar footer
    */
   private updateGitInfo(git: GitInfo) {
-    const footer = this.querySelector('.sidebar-footer');
+    const footer = this.querySelector(".sidebar-footer");
     if (!footer) return;
 
     // Extract user/repo from repoUrl (e.g., "https://github.com/user/repo" -> "user/repo")
-    let repoPath = '';
+    let repoPath = "";
     if (git.repoUrl) {
       const match = git.repoUrl.match(/https?:\/\/[^/]+\/(.+)/);
       if (match) {
@@ -85,7 +89,7 @@ export class WorkspaceApp extends HTMLElement {
     if (git.repoUrl && repoPath) {
       const commitUrl = git.commitUrl || git.repoUrl;
       if (!isSafeUrl(commitUrl)) {
-        console.warn('Invalid URL protocol in git info:', commitUrl);
+        console.warn("Invalid URL protocol in git info:", commitUrl);
         return;
       }
 
@@ -93,12 +97,14 @@ export class WorkspaceApp extends HTMLElement {
         <a href="${commitUrl}" target="_blank" rel="noopener" class="commit-link">
           ${githubIcon(14)}
           <span class="repo-path">${repoPath}</span>
-          ${git.commitHashShort ? `<span class="commit-separator">-</span><span class="commit-hash">${git.commitHashShort}</span>` : ''}
+          ${git.commitHashShort ? `<span class="commit-separator">-</span><span class="commit-hash">${git.commitHashShort}</span>` : ""}
         </a>
       `;
       footer.innerHTML = DOMPurify.sanitize(html);
     } else if (git.commitHashShort) {
-      footer.innerHTML = DOMPurify.sanitize(`<span class="commit-hash">${git.commitHashShort}</span>`);
+      footer.innerHTML = DOMPurify.sanitize(
+        `<span class="commit-hash">${git.commitHashShort}</span>`,
+      );
     }
   }
 
@@ -106,39 +112,39 @@ export class WorkspaceApp extends HTMLElement {
    * Hide the sidebar completely (including toggle button)
    */
   private hideSidebar() {
-    const toggleBtn = this.querySelector('.sidebar-toggle') as HTMLElement;
-    const sidebar = this.querySelector('.sidebar') as HTMLElement;
+    const toggleBtn = this.querySelector(".sidebar-toggle") as HTMLElement;
+    const sidebar = this.querySelector(".sidebar") as HTMLElement;
 
-    sidebar?.classList.add('hidden');
-    toggleBtn?.classList.add('hidden');
+    sidebar?.classList.add("hidden");
+    toggleBtn?.classList.add("hidden");
   }
 
   /**
    * Show the sidebar
    */
   private showSidebar() {
-    const toggleBtn = this.querySelector('.sidebar-toggle') as HTMLElement;
-    const sidebar = this.querySelector('.sidebar') as HTMLElement;
+    const toggleBtn = this.querySelector(".sidebar-toggle") as HTMLElement;
+    const sidebar = this.querySelector(".sidebar") as HTMLElement;
 
-    sidebar?.classList.remove('hidden');
-    toggleBtn?.classList.remove('hidden');
+    sidebar?.classList.remove("hidden");
+    toggleBtn?.classList.remove("hidden");
   }
 
   /**
    * Setup sidebar toggle functionality
    */
   private setupSidebarToggle() {
-    const toggleBtn = this.querySelector('.sidebar-toggle') as HTMLElement;
-    const sidebar = this.querySelector('.sidebar') as HTMLElement;
+    const toggleBtn = this.querySelector(".sidebar-toggle") as HTMLElement;
+    const sidebar = this.querySelector(".sidebar") as HTMLElement;
 
-    toggleBtn?.addEventListener('click', () => {
+    toggleBtn?.addEventListener("click", () => {
       this.sidebarCollapsed = !this.sidebarCollapsed;
-      sidebar?.classList.toggle('collapsed', this.sidebarCollapsed);
-      toggleBtn?.classList.toggle('collapsed', this.sidebarCollapsed);
+      sidebar?.classList.toggle("collapsed", this.sidebarCollapsed);
+      toggleBtn?.classList.toggle("collapsed", this.sidebarCollapsed);
 
       // Update button position
       if (this.sidebarCollapsed) {
-        toggleBtn.style.left = '8px';
+        toggleBtn.style.left = "8px";
       } else {
         // Restore position based on tracked width
         toggleBtn.style.left = `${this.sidebarWidth + 8}px`;
@@ -150,9 +156,11 @@ export class WorkspaceApp extends HTMLElement {
    * Setup sidebar resize functionality
    */
   private setupSidebarResize() {
-    const resizeHandle = this.querySelector('.sidebar-resize-handle') as HTMLElement;
-    const sidebar = this.querySelector('.sidebar') as HTMLElement;
-    const toggleBtn = this.querySelector('.sidebar-toggle') as HTMLElement;
+    const resizeHandle = this.querySelector(
+      ".sidebar-resize-handle",
+    ) as HTMLElement;
+    const sidebar = this.querySelector(".sidebar") as HTMLElement;
+    const toggleBtn = this.querySelector(".sidebar-toggle") as HTMLElement;
 
     if (!resizeHandle || !sidebar) return;
 
@@ -179,8 +187,8 @@ export class WorkspaceApp extends HTMLElement {
       isResizing = true;
       startX = e.clientX;
       startWidth = sidebar.offsetWidth;
-      document.body.style.cursor = 'col-resize';
-      document.body.style.userSelect = 'none';
+      document.body.style.cursor = "col-resize";
+      document.body.style.userSelect = "none";
       e.preventDefault();
     };
 
@@ -188,7 +196,10 @@ export class WorkspaceApp extends HTMLElement {
       if (!isResizing) return;
 
       const delta = e.clientX - startX;
-      const newWidth = Math.max(SIDEBAR.MIN_WIDTH, Math.min(SIDEBAR.MAX_WIDTH, startWidth + delta));
+      const newWidth = Math.max(
+        SIDEBAR.MIN_WIDTH,
+        Math.min(SIDEBAR.MAX_WIDTH, startWidth + delta),
+      );
 
       this.sidebarWidth = newWidth;
       sidebar.style.width = `${newWidth}px`;
@@ -201,8 +212,8 @@ export class WorkspaceApp extends HTMLElement {
     const onMouseUp = () => {
       if (isResizing) {
         isResizing = false;
-        document.body.style.cursor = '';
-        document.body.style.userSelect = '';
+        document.body.style.cursor = "";
+        document.body.style.userSelect = "";
 
         // Save width to localStorage
         this.sidebarWidth = sidebar.offsetWidth;
@@ -210,9 +221,9 @@ export class WorkspaceApp extends HTMLElement {
       }
     };
 
-    resizeHandle.addEventListener('mousedown', onMouseDown);
-    document.addEventListener('mousemove', onMouseMove);
-    document.addEventListener('mouseup', onMouseUp);
+    resizeHandle.addEventListener("mousedown", onMouseDown);
+    document.addEventListener("mousemove", onMouseMove);
+    document.addEventListener("mouseup", onMouseUp);
   }
 
   /**
@@ -220,7 +231,7 @@ export class WorkspaceApp extends HTMLElement {
    */
   private setupRouting() {
     router.onRouteChange((route) => {
-      if (route.path === '/project' && route.projectId) {
+      if (route.path === "/project" && route.projectId) {
         this.loadProject(route.projectId, route.position, route.marker);
         // Show sidebar when viewing a project
         this.showSidebar();
@@ -239,10 +250,10 @@ export class WorkspaceApp extends HTMLElement {
    */
   private loadProject(
     projectId: string,
-    position?: import('../lib/router.js').ViewPosition,
-    marker?: import('../lib/router.js').MarkerBounds
+    position?: import("../lib/router.js").ViewPosition,
+    marker?: import("../lib/router.js").MarkerBounds,
   ) {
-    const project = this.projects.find(p => p.id === projectId);
+    const project = this.projects.find((p) => p.id === projectId);
 
     if (!project) {
       console.error(`Project not found: ${projectId}`);
@@ -290,10 +301,10 @@ export class WorkspaceApp extends HTMLElement {
     `;
 
     // Get references to child components
-    this.projectList = this.querySelector('project-list') as ProjectList;
-    this.viewerPanel = this.querySelector('viewer-panel') as ViewerPanel;
+    this.projectList = this.querySelector("project-list") as ProjectList;
+    this.viewerPanel = this.querySelector("viewer-panel") as ViewerPanel;
   }
 }
 
 // Register custom element
-customElements.define('workspace-app', WorkspaceApp);
+customElements.define("workspace-app", WorkspaceApp);

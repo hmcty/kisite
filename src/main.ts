@@ -2,13 +2,13 @@
  * Main entry point for KiSite
  */
 
-import './styles/main.css';
+import "./styles/main.css";
 
-import './components/workspace-app.js';
-import './components/project-list.js';
-import './components/viewer-panel.js';
-import './components/project-gallery.js';
+import "./components/workspace-app.js";
+import "./components/project-list.js";
+import "./components/viewer-panel.js";
+import "./components/project-gallery.js";
 
-import './lib/router.js';
+import "./lib/router.js";
 
-console.log('KiSite initialized');
+console.log("KiSite initialized");

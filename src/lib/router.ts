@@ -6,7 +6,7 @@ export interface ViewPosition {
   x: number;
   y: number;
   zoom: number;
-  file?: string;  // Which file to view (schematic sheet UUID or 'pcb')
+  file?: string; // Which file to view (schematic sheet UUID or 'pcb')
 }
 
 export interface MarkerBounds {
@@ -30,7 +30,7 @@ export class Router {
 
   constructor() {
     // Listen for hash changes
-    window.addEventListener('hashchange', () => this.handleHashChange());
+    window.addEventListener("hashchange", () => this.handleHashChange());
 
     // Handle initial route
     this.handleHashChange();
@@ -50,12 +50,12 @@ export class Router {
   private parseHash(): Route {
     const hash = window.location.hash.slice(1); // Remove #
 
-    if (!hash || hash === '/') {
-      return { path: '/' };
+    if (!hash || hash === "/") {
+      return { path: "/" };
     }
 
     // Split path and query string
-    const [pathPart, queryString] = hash.split('?');
+    const [pathPart, queryString] = hash.split("?");
 
     // Parse query params for position and marker
     let position: ViewPosition | undefined;
@@ -64,10 +64,10 @@ export class Router {
       const params = new URLSearchParams(queryString);
 
       // View position
-      const x = params.get('x');
-      const y = params.get('y');
-      const zoom = params.get('zoom');
-      const file = params.get('file');
+      const x = params.get("x");
+      const y = params.get("y");
+      const zoom = params.get("zoom");
+      const file = params.get("file");
       if (x !== null && y !== null) {
         position = {
           x: parseFloat(x),
@@ -78,10 +78,10 @@ export class Router {
       }
 
       // Marker bounds
-      const mx = params.get('mx');
-      const my = params.get('my');
-      const mw = params.get('mw');
-      const mh = params.get('mh');
+      const mx = params.get("mx");
+      const my = params.get("my");
+      const mw = params.get("mw");
+      const mh = params.get("mh");
       if (mx !== null && my !== null && mw !== null && mh !== null) {
         marker = {
           x: parseFloat(mx),
@@ -96,7 +96,7 @@ export class Router {
     const projectMatch = pathPart.match(/^\/project\/(.+)$/);
     if (projectMatch) {
       return {
-        path: '/project',
+        path: "/project",
         projectId: decodeURIComponent(projectMatch[1]),
         position,
         marker,
@@ -109,7 +109,12 @@ export class Router {
   /**
    * Navigate to a route
    */
-  navigate(path: string, projectId?: string, position?: ViewPosition, marker?: MarkerBounds) {
+  navigate(
+    path: string,
+    projectId?: string,
+    position?: ViewPosition,
+    marker?: MarkerBounds,
+  ) {
     let hash: string;
     if (projectId) {
       hash = `/project/${encodeURIComponent(projectId)}`;
@@ -131,7 +136,7 @@ export class Router {
         params.push(`mw=${marker.width.toFixed(2)}`);
         params.push(`mh=${marker.height.toFixed(2)}`);
       }
-      hash += `?${params.join('&')}`;
+      hash += `?${params.join("&")}`;
     }
 
     window.location.hash = `#${hash}`;
@@ -142,7 +147,7 @@ export class Router {
    */
   buildPositionUrl(position: ViewPosition, marker?: MarkerBounds): string {
     const route = this.parseHash();
-    const base = window.location.href.split('#')[0];
+    const base = window.location.href.split("#")[0];
     let hash: string;
 
     if (route.projectId) {
@@ -165,7 +170,7 @@ export class Router {
       params.push(`mh=${marker.height.toFixed(2)}`);
     }
 
-    hash += `?${params.join('&')}`;
+    hash += `?${params.join("&")}`;
     return `${base}#${hash}`;
   }
 
