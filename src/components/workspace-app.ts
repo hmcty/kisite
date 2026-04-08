@@ -77,7 +77,7 @@ export class WorkspaceApp extends HTMLElement {
     const footer = this.querySelector(".sidebar-footer");
     if (!footer) return;
 
-    // Extract user/repo from repoUrl (e.g., "https://github.com/user/repo" -> "user/repo")
+    // Extract user/repo from repoUrl (e.g., "user/repo")
     let repoPath = "";
     if (git.repoUrl) {
       const match = git.repoUrl.match(/https?:\/\/[^/]+\/(.+)/);
@@ -93,23 +93,27 @@ export class WorkspaceApp extends HTMLElement {
         return;
       }
 
+      let commitHashDisplay = "";
+      if (git.commitHashShort) {
+        commitHashDisplay = `
+          <span class="commit-separator">-</span>
+          <span class="commit-hash">{git.commitHashShort}</span>
+        `;
+      }
+
       const html = `
         <a href="${commitUrl}" target="_blank" rel="noopener" class="commit-link">
           ${githubIcon(14)}
           <span class="repo-path">${repoPath}</span>
-          ${git.commitHashShort ? `<span class="commit-separator">-</span><span class="commit-hash">${git.commitHashShort}</span>` : ""}
+          ${commitHashDisplay}
         </a>
       `;
       footer.innerHTML = DOMPurify.sanitize(html);
-    } else if (git.commitHashShort) {
-      footer.innerHTML = DOMPurify.sanitize(
-        `<span class="commit-hash">${git.commitHashShort}</span>`,
-      );
     }
   }
 
   /**
-   * Hide the sidebar completely (including toggle button)
+   * Hide the sidebar (including toggle button)
    */
   private hideSidebar() {
     const toggleBtn = this.querySelector(".sidebar-toggle") as HTMLElement;

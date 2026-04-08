@@ -154,6 +154,11 @@ export class ProjectGallery extends HTMLElement {
         <div class="gallery-grid">
           ${this.projects.map((project) => this.renderProjectCard(project)).join("")}
         </div>
+        <footer class="gallery-footer">
+          <span>Generated with <a href="https://github.com/hmcty/kisite" target="_blank" rel="noopener">KiSite</a></span>
+          <span class="separator">•</span>
+          <span>Interactive viewer by <a href="https://kicanvas.org" target="_blank" rel="noopener">KiCanvas</a></span>
+        </footer>
       </div>
     `;
 

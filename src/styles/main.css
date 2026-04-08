@@ -752,6 +752,32 @@ project-gallery {
   gap: 20px;
 }
 
+.gallery-footer {
+  margin-top: 48px;
+  padding-top: 20px;
+  border-top: 1px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--fg-tertiary, #666);
+}
+
+.gallery-footer a {
+  color: var(--fg-secondary);
+  text-decoration: none;
+  transition: color 0.15s;
+}
+
+.gallery-footer a:hover {
+  color: var(--accent-color);
+}
+
+.gallery-footer .separator {
+  color: var(--fg-tertiary, #666);
+}
+
 .project-card {
   background-color: var(--bg-secondary);
   border: 1px solid var(--border-color);
