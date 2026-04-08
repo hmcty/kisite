@@ -58,7 +58,7 @@ public/
 vendor/kicanvas/node_modules/
 vendor/kicanvas/build/
 
-# KiShare build artifacts
-.kishare/
+# KiSite build artifacts
+.kisite/
 lib/
 
