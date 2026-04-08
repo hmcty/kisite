@@ -1,4 +1,7 @@
 {
-  "title": "KiSite Example",
-  "projectDirs": ["./demo/projects"]
+  "title": "KiSite Demo",
+  "projectDirs": [
+    "./demo/projects/echo-debug-gen3/",
+    "./demo/projects/glasgow/hardware/boards/"
+  ]
 }

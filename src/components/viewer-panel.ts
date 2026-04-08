@@ -26,6 +26,7 @@ export class ViewerPanel extends HTMLElement {
   }
 
   connectedCallback() {
+    console.log('ViewerPanel connected to DOM');
     this.render();
     this.setupEventListeners();
   }
@@ -310,6 +311,7 @@ export class ViewerPanel extends HTMLElement {
    * Setup event listeners for keyboard shortcuts
    */
   private setupEventListeners() {
+    console.log('Setting up event listeners');
     this.createContextMenu();
 
     // Use keyboard shortcut instead: 'C' key to open context menu
@@ -323,17 +325,22 @@ export class ViewerPanel extends HTMLElement {
     });
 
     document.addEventListener('keydown', (e: KeyboardEvent) => {
+      console.log('Keydown event:', e.key);
       const key = e.key.toLowerCase();
 
       // Press 'C' to open context menu at mouse position
       if (key === 'c') {
-        if (!this.currentEmbed) return;
+        if (!this.currentEmbed) {
+          console.log('No embed loaded, cannot show context menu');
+          return;
+        }
+        e.preventDefault();
         this.showContextMenu(lastMouseX, lastMouseY);
       }
 
-      // Press 'T' to toggle marker visibility
       if (key === 't') {
         if (!this.currentEmbed) return;
+        e.preventDefault();
         this.toggleMarkersVisible();
       }
     });
@@ -387,7 +394,10 @@ export class ViewerPanel extends HTMLElement {
    */
   private showContextMenu(x: number, y: number) {
     const menu = this.querySelector('.context-menu') as HTMLElement;
-    if (!menu) return;
+    if (!menu) {
+      console.error('Context menu element not found!');
+      return;
+    }
 
     // Position menu
     menu.style.left = `${x}px`;
@@ -528,10 +538,16 @@ export class ViewerPanel extends HTMLElement {
 
     // Show gallery instead of simple welcome message
     this.innerHTML = '';
-    const gallery = document.createElement('project-gallery') as ProjectGallery;
+    const gallery = document.createElement('project-gallery');
     this.appendChild(gallery);
-    gallery.setGitInfo(this.gitInfo);
-    gallery.setProjects(this.projects, this.title);
+
+    // Wait for next tick to ensure custom element is upgraded
+    requestAnimationFrame(() => {
+      if (gallery instanceof ProjectGallery) {
+        gallery.setGitInfo(this.gitInfo);
+        gallery.setProjects(this.projects, this.title);
+      }
+    });
   }
 
   /**

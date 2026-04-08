@@ -91,6 +91,35 @@ export class ProjectGallery extends HTMLElement {
 
     this.innerHTML = DOMPurify.sanitize(html);
 
+    // Create kicanvas-embed elements for each card preview
+    this.querySelectorAll('.card-preview').forEach((previewEl) => {
+      const projectId = previewEl.getAttribute('data-preview');
+      if (!projectId) return;
+
+      const project = this.projects.find(p => p.id === projectId);
+      if (!project) return;
+
+      const embed = document.createElement('kicanvas-embed');
+      embed.setAttribute('controls', 'none');
+      embed.className = 'card-kicanvas';
+
+      // Prefer PCB, otherwise use first schematic
+      const fileToShow = project.pcb || (project.schematics[0]?.path);
+      if (fileToShow) {
+        const source = document.createElement('kicanvas-source');
+        source.setAttribute('src', fileToShow);
+        embed.appendChild(source);
+      }
+
+      // Insert embed before download button (if it exists)
+      const downloadBtn = previewEl.querySelector('.card-download');
+      if (downloadBtn) {
+        previewEl.insertBefore(embed, downloadBtn);
+      } else {
+        previewEl.appendChild(embed);
+      }
+    });
+
     this.querySelectorAll('.project-card').forEach(card => {
       card.addEventListener('click', (e) => {
         // Don't navigate if clicking on download button
@@ -119,11 +148,6 @@ export class ProjectGallery extends HTMLElement {
       badges.push(`<span class="badge badge-pcb">PCB</span>`);
     }
 
-    // Use thumbnail if available, otherwise show a placeholder
-    const thumbnail = project.thumbnail
-      ? `<img src="${project.thumbnail}" alt="${project.name}" class="card-thumbnail" />`
-      : this.renderPlaceholderThumbnail(project);
-
     // Add download button if zip exists
     const downloadButton = project.zip
       ? `<a href="${project.zip}" download class="card-download" title="Download project files" data-download>
@@ -135,8 +159,7 @@ export class ProjectGallery extends HTMLElement {
 
     return `
       <div class="project-card" data-project-id="${project.id}">
-        <div class="card-preview">
-          ${thumbnail}
+        <div class="card-preview" data-preview="${project.id}">
           ${downloadButton}
         </div>
         <div class="card-content">
@@ -147,32 +170,6 @@ export class ProjectGallery extends HTMLElement {
     `;
   }
 
-  /**
-   * Render a placeholder thumbnail with an icon
-   */
-  private renderPlaceholderThumbnail(project: ProjectMetadata): string {
-    // Show PCB icon if has PCB, otherwise schematic icon
-    const icon = project.pcb
-      ? `<svg viewBox="0 0 24 24" width="48" height="48" fill="currentColor">
-          <path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 14H4V6h16v12z"/>
-          <circle cx="8" cy="10" r="1.5"/>
-          <circle cx="12" cy="10" r="1.5"/>
-          <circle cx="16" cy="10" r="1.5"/>
-          <circle cx="8" cy="14" r="1.5"/>
-          <circle cx="12" cy="14" r="1.5"/>
-          <circle cx="16" cy="14" r="1.5"/>
-        </svg>`
-      : `<svg viewBox="0 0 24 24" width="48" height="48" fill="currentColor">
-          <path d="M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6zm4 18H6V4h7v5h5v11z"/>
-          <path d="M8 12h8v2H8zm0 4h8v2H8z"/>
-        </svg>`;
-
-    return `
-      <div class="card-placeholder">
-        ${icon}
-      </div>
-    `;
-  }
 }
 
 // Register custom element

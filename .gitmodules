@@ -4,3 +4,6 @@
 [submodule "vendor/kicanvas"]
 	path = vendor/kicanvas
 	url = https://github.com/hmcty/kicanvas.git
+[submodule "demo/projects/glasgow"]
+	path = demo/projects/glasgow
+	url = https://github.com/GlasgowEmbedded/glasgow.git

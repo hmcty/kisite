@@ -291,7 +291,7 @@ function parseProjectFile(projectPath: string, trackedFiles: Set<string>, submod
       console.warn(`Failed to get file stats for ${projectPath}:`, e);
     }
 
-    const id = relativePath.replace(/\\/g, '/');
+    const id = relativePath.replace(/\\/g, '/') || projectName;
     const projectGitInfo = getGitInfoForPath(projectDir, submodules);
 
     return {
