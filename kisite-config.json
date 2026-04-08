@@ -1,6 +1,4 @@
 {
   "title": "KiSite Example",
-  "projectDirs": ["./projects"],
-  "hiddenFolders": [],
-  "basePath": "./"
+  "projectDirs": ["./demo/projects"]
 }
