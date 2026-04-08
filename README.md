@@ -9,9 +9,9 @@ See the demo [here](https://hmcty.github.io/kisite/).
 
 ## Features
 
-- Out-of-the-box support for hosting on GitHub Pages
-- Location markers for reference in GitHub issues / PR reviews
-- Download links for each project ZIP
+- Out-of-the-box support for hosting with GitHub Pages
+- Shareable location markers (e.g. in GitHub issues and PR reviews)
+- Download links for each project
 - Basic support for inline documentation
 
 ## Usage
@@ -115,3 +115,18 @@ Alternatively, run the development server:
 ```bash
 npm exec kisite dev
 ```
+
+## Future Work
+
+- Out-of-the-box support for GitLab and other static hosting platforms
+- Improved inline documentation (e.g. per sheet, component links, etc.)
+- KiCad plugin for viewing PR comments and markers locally
+- Support for custom themes and site customization
+- Improved workspace layout
+
+## Alternatives
+
+- [KiCAD-PRISM](https://github.com/krishna-swaroop/KiCAD-Prism/tree/main)
+    - KiCAD-PRISM provides a more comprehensive backend for design reviews and
+      collaboration, but requires self-hosting and maintenance
+
