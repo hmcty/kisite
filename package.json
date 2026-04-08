@@ -1,11 +1,11 @@
 {
-  "name": "kishare",
-  "version": "1.1.1",
+  "name": "kisite",
+  "version": "1.0.0",
   "type": "module",
   "description": "Static site generator for KiCad projects",
   "license": "GPL-3.0-only",
   "bin": {
-    "kishare": "bin/kishare.js"
+    "kisite": "bin/kisite.js"
   },
   "keywords": [
     "kicad",
@@ -44,6 +44,6 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/hmcty/kishare.git"
+    "url": "git+https://github.com/hmcty/kisite.git"
   }
 }

@@ -14,7 +14,7 @@ export class WorkspaceApp extends HTMLElement {
   private projectList!: ProjectList;
   private viewerPanel!: ViewerPanel;
   private projects: ProjectMetadata[] = [];
-  private title: string = 'KiShare';
+  private title: string = 'KiSite';
   private sidebarCollapsed: boolean = false;
   private sidebarWidth: number = 300; // Track uncollapsed width
   private gitInfo: GitInfo | null = null;

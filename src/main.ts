@@ -1,5 +1,5 @@
 /**
- * Main entry point for KiShare
+ * Main entry point for KiSite
  */
 
 import './styles/main.css';
@@ -10,4 +10,4 @@ import './components/viewer-panel.js';
 
 import './lib/router.js';
 
-console.log('KiShare initialized');
+console.log('KiSite initialized');

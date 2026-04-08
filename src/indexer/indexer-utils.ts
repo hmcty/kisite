@@ -13,7 +13,7 @@ let ROOT_DIR: string;
 let OUTPUT_DIR: string;
 let KISHARE_ROOT: string;
 
-// Get kishare installation root from environment variable or resolve from this file's location
+// Get kisite installation root from environment variable or resolve from this file's location
 function getKishareRoot(): string {
   if (process.env.KISHARE_ROOT) {
     return path.resolve(process.env.KISHARE_ROOT);
@@ -23,7 +23,7 @@ function getKishareRoot(): string {
   return path.resolve(path.dirname(__filename), '../..');
 }
 
-// Get user's project root (where kishare-config.json and KiCad files live)
+// Get user's project root (where kisite-config.json and KiCad files live)
 function getProjectRoot(): string {
   // KISHARE_PROJECT_ROOT is set by CLI, otherwise use cwd
   return process.env.KISHARE_PROJECT_ROOT || process.cwd();
@@ -37,7 +37,7 @@ export function isParentOf(parent: string, child: string): boolean {
 
 // Read configuration from user's project directory
 export function loadConfig(): WorkspaceConfig {
-  const configPath = path.join(getProjectRoot(), 'kishare-config.json');
+  const configPath = path.join(getProjectRoot(), 'kisite-config.json');
   if (!fs.existsSync(configPath)) {
     console.warn(`No config file found at ${configPath}, using defaults`);
     return {};
@@ -48,7 +48,7 @@ export function loadConfig(): WorkspaceConfig {
 
 // Initialize paths
 // ROOT_DIR = user's project (where KiCad files live)
-// KISHARE_ROOT = kishare package installation
+// KISHARE_ROOT = kisite package installation
 // OUTPUT_DIR = output directory for generated files (can be overridden via KISHARE_OUTPUT_DIR)
 export function initializePaths() {
   ROOT_DIR = getProjectRoot();
@@ -56,9 +56,9 @@ export function initializePaths() {
   // Allow OUTPUT_DIR to be overridden via environment variable (used by CLI with temp directories)
   OUTPUT_DIR = process.env.KISHARE_OUTPUT_DIR || path.join(KISHARE_ROOT, 'public');
 
-  console.log(`Config file: ${path.join(ROOT_DIR, 'kishare-config.json')}`);
+  console.log(`Config file: ${path.join(ROOT_DIR, 'kisite-config.json')}`);
   console.log(`Root directory (project files): ${ROOT_DIR}`);
-  console.log(`KiShare root: ${KISHARE_ROOT}`);
+  console.log(`KiSite root: ${KISHARE_ROOT}`);
   console.log(`Output directory: ${OUTPUT_DIR}`);
 }
 

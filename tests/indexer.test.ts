@@ -5,7 +5,7 @@ import { fileURLToPath } from 'url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const fixturesDir = path.join(__dirname, 'fixtures');
-const kishareRoot = path.resolve(__dirname, '..');
+const kisiteRoot = path.resolve(__dirname, '..');
 
 describe('Indexer', () => {
   const originalEnv = { ...process.env };
@@ -13,7 +13,7 @@ describe('Indexer', () => {
 
   beforeAll(() => {
     // Set up environment for indexer
-    process.env.KISHARE_ROOT = kishareRoot;
+    process.env.KISHARE_ROOT = kisiteRoot;
     process.env.KISHARE_PROJECT_ROOT = fixturesDir;
     process.chdir(fixturesDir);
   });
@@ -40,8 +40,8 @@ describe('Indexer', () => {
       initializePaths();
 
       expect(getRootDir()).toBe(fixturesDir);
-      expect(getKishareRootDir()).toBe(kishareRoot);
-      expect(getOutputDir()).toBe(path.join(kishareRoot, 'public'));
+      expect(getKishareRootDir()).toBe(kisiteRoot);
+      expect(getOutputDir()).toBe(path.join(kisiteRoot, 'public'));
     });
 
     it('should get project directories from config', async () => {

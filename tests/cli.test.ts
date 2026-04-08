@@ -7,8 +7,8 @@ import type { ProjectIndex } from '../src/lib/project-index.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const fixturesDir = path.join(__dirname, 'fixtures');
-const kishareRoot = path.resolve(__dirname, '..');
-const cliBin = path.join(kishareRoot, 'bin', 'kishare.js');
+const kisiteRoot = path.resolve(__dirname, '..');
+const cliBin = path.join(kisiteRoot, 'bin', 'kisite.js');
 
 function runCli(args: string[], cwd: string = fixturesDir): Promise<{ stdout: string; stderr: string; code: number }> {
   return new Promise((resolve) => {
@@ -40,7 +40,7 @@ describe('CLI', () => {
       const result = await runCli(['--help']);
 
       expect(result.code).toBe(0);
-      expect(result.stdout).toContain('kishare');
+      expect(result.stdout).toContain('kisite');
       expect(result.stdout).toContain('dev');
       expect(result.stdout).toContain('build');
       expect(result.stdout).toContain('preview');
@@ -60,15 +60,15 @@ describe('CLI', () => {
 
   describe('build command', () => {
     const buildOutputDir = path.join(fixturesDir, 'dist');
-    const kishareWorkDir = path.join(fixturesDir, '.kishare');
+    const kisiteWorkDir = path.join(fixturesDir, '.kisite');
 
     afterAll(() => {
       // Clean up build output and work directory
       if (fs.existsSync(buildOutputDir)) {
         fs.rmSync(buildOutputDir, { recursive: true });
       }
-      if (fs.existsSync(kishareWorkDir)) {
-        fs.rmSync(kishareWorkDir, { recursive: true });
+      if (fs.existsSync(kisiteWorkDir)) {
+        fs.rmSync(kisiteWorkDir, { recursive: true });
       }
     });
 

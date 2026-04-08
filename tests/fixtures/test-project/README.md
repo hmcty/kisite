@@ -1,6 +1,6 @@
 # Test Board
 
-This is a minimal KiCad project for testing kishare.
+This is a minimal KiCad project for testing kisite.
 
 ## Features
 

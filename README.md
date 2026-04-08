@@ -1,11 +1,11 @@
-# KiShare
+# KiSite
 
 A lightweight tool to view and share your KiCad projects online.
 
-Built on [KiCanvas](https://kicanvas.org/), KiShare scans for KiCad project
+Built on [KiCanvas](https://kicanvas.org/), KiSite scans for KiCad project
 files and generates a static site.
 
-See the demo [here](https://hmcty.github.io/kishare/).
+See the demo [here](https://hmcty.github.io/kisite/).
 
 ## Features
 
@@ -18,7 +18,7 @@ See the demo [here](https://hmcty.github.io/kishare/).
 
 ### Configuration
 
-Create `kishare-config.json` in the root directory:
+Create `kisite-config.json` in the root directory:
 
 ```json
 {
@@ -39,7 +39,7 @@ Create `kishare-config.json` in the root directory:
 After enabling [GitHub Pages in your repository settings](https://docs.github.com/en/pages/quickstart), add the following GitHub workflow:
 
 ```yaml
-name: Build and Deploy KiShare
+name: Build and Deploy KiSite
 
 on:
   push:
@@ -71,8 +71,8 @@ jobs:
         with:
           node-version: '24'
 
-      - run: npm install kishare@1.1.0
-      - run: npm exec kishare build
+      - run: npm install kisite@1.1.0
+      - run: npm exec kisite build
 
       - name: Setup Pages
         uses: actions/configure-pages@v4
@@ -98,20 +98,20 @@ See the [demo workflow](./.github/workflows/deploy.yml) for a complete example.
 
 #### Manual Build
 
-Install the KiShare CLI:
+Install the KiSite CLI:
 
 ```bash
-npm install -g kishare
+npm install -g kisite
 ```
 
 Build site:
 
 ```bash
-npm exec kishare build
+npm exec kisite build
 ```
 
 Alternatively, run the development server:
 
 ```bash
-npm exec kishare dev
+npm exec kisite dev
 ```

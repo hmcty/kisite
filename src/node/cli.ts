@@ -8,15 +8,15 @@ import { createServer, build, preview, type InlineConfig, type Plugin } from 'vi
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Resolve the kishare package root (two levels up from src/node/)
+// Resolve the kisite package root (two levels up from src/node/)
 const KISHARE_ROOT = path.resolve(__dirname, '../..');
 
 function printUsage() {
   console.log(`
-kishare - KiCad project viewer generator
+kisite - KiCad project viewer generator
 
 Usage:
-  kishare [command] [options]
+  kisite [command] [options]
 
 Commands:
   dev      Start development server (default)
@@ -30,7 +30,7 @@ Options:
 
 // Create the working directory in the user's project
 function createWorkDir(): string {
-  const workDir = path.join(process.cwd(), '.kishare');
+  const workDir = path.join(process.cwd(), '.kisite');
   // Clean and recreate
   if (fs.existsSync(workDir)) {
     fs.rmSync(workDir, { recursive: true, force: true });
@@ -230,7 +230,7 @@ async function runPreview() {
 
   if (!fs.existsSync(outDir)) {
     console.error(`Error: No build found at ${outDir}`);
-    console.error('Run "kishare build" first.');
+    console.error('Run "kisite build" first.');
     process.exit(1);
   }
 
@@ -259,7 +259,7 @@ async function main() {
   process.env.KISHARE_ROOT = KISHARE_ROOT;
   process.env.KISHARE_PROJECT_ROOT = process.cwd();
 
-  console.log(`KiShare CLI`);
+  console.log(`KiSite CLI`);
   console.log(`  Project: ${process.cwd()}`);
   console.log(`  Package: ${KISHARE_ROOT}`);
   console.log();

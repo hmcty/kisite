@@ -514,7 +514,7 @@ export class ViewerPanel extends HTMLElement {
     this.clearMarker();
     this.innerHTML = `
       <div class="welcome">
-        <h2>KiShare Workspace</h2>
+        <h2>KiSite Workspace</h2>
         <p>Select a project from the sidebar to view schematics and PCBs</p>
       </div>
     `;
